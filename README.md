@@ -1,8 +1,14 @@
-<div align="center">
-  <img src="./assets/banner.svg" alt="opnsense-cli banner" width="100%"/>
-</div>
+# OPNsense CLI
 
-<div align="center">
+```
+   ____  ____  _   __                             ________    ____
+  / __ \/ __ \/ | / /_______  ____  ________     / ____/ /   /  _/
+ / / / / /_/ /  |/ / ___/ _ \/ __ \/ ___/ _ \  / /   / /    / /  
+/ /_/ / ____/ /|  (__  )  __/ / / (__  )  __/ / /___/ /____/ /   
+\____/_/   /_/ |_/____/\___/_/ /_/____/\___/ \____/_____/___/   
+
+         DNS, DHCP & HAProxy Management for OPNsense
+```
 
 [![CI](https://github.com/slmingol/opnsense-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/slmingol/opnsense-cli/actions/workflows/ci.yml)
 [![Release](https://github.com/slmingol/opnsense-cli/actions/workflows/release.yml/badge.svg)](https://github.com/slmingol/opnsense-cli/actions/workflows/release.yml)
@@ -12,8 +18,6 @@
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen?logo=node.js&logoColor=white)](https://nodejs.org)
 [![OPNsense](https://img.shields.io/badge/OPNsense-25.7%2B-D94F00?logo=opnsense&logoColor=white)](https://opnsense.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-</div>
 
 A CLI tool to manage OPNsense via REST API. Mirrors the feature set of
 [pfsense-cli](../pfsense-cli) with OPNsense-native endpoint naming, Kea DHCP
