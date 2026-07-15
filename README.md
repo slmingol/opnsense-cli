@@ -4,11 +4,14 @@
 
 <div align="center">
 
+[![CI](https://github.com/slmingol/opnsense-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/slmingol/opnsense-cli/actions/workflows/ci.yml)
+[![Release](https://github.com/slmingol/opnsense-cli/actions/workflows/release.yml/badge.svg)](https://github.com/slmingol/opnsense-cli/actions/workflows/release.yml)
+[![GitHub release](https://img.shields.io/github/v/release/slmingol/opnsense-cli)](https://github.com/slmingol/opnsense-cli/releases)
+[![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
+[![Docker](https://img.shields.io/badge/ghcr.io-opnsense--cli-blue?logo=docker)](https://github.com/slmingol/opnsense-cli/pkgs/container/opnsense-cli)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen?logo=node.js&logoColor=white)](https://nodejs.org)
 [![OPNsense](https://img.shields.io/badge/OPNsense-25.7%2B-D94F00?logo=opnsense&logoColor=white)](https://opnsense.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![REST API](https://img.shields.io/badge/transport-REST%20API-blue)](https://docs.opnsense.org/development/api.html)
-[![Kea DHCP](https://img.shields.io/badge/DHCP-Kea-informational)](https://www.isc.org/kea/)
 
 </div>
 
