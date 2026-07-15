@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/slmingol/opnsense-cli/compare/v1.4.1...v1.4.2) (2026-07-15)
+
+
+### Documentation
+
+* document config.mk site-local Makefile overrides in README ([4b7fe3d](https://github.com/slmingol/opnsense-cli/commit/4b7fe3dd3689c3c6984f9f615c802e497e9810b1))
+
 ## [1.4.1](https://github.com/slmingol/opnsense-cli/compare/v1.4.0...v1.4.1) (2026-07-15)
 
 
