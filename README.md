@@ -91,6 +91,24 @@ npm link                      # or install globally as `opnsense`
 opnsense list
 ```
 
+### Makefile site configuration
+
+The Makefile uses sensible defaults for the `add-service` / `delete-service` / `list-hosts` targets. Override them without modifying the Makefile by creating a `config.mk` (gitignored):
+
+```bash
+cp config.mk.example config.mk
+```
+
+Edit `config.mk`:
+
+```makefile
+HOST_BUB         = docker-host-01-svcs   # backend host (no domain)
+HOST_LAMOLABS    = lamolabs-svcs         # frontend host (no domain)
+DOMAIN_BACKEND   = bub.lan              # internal DNS domain
+DOMAIN_FRONTEND  = lamolabs.org         # external/HAProxy domain
+HAPROXY_FRONTEND = HomePrivateServers   # HAProxy frontend name
+```
+
 ---
 
 ## Usage
