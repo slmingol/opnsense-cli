@@ -1,3 +1,10 @@
+## [1.3.0](https://github.com/slmingol/opnsense-cli/compare/v1.2.0...v1.3.0) (2026-07-15)
+
+
+### Features
+
+* parameterize site-specific Makefile defaults ([47f5ab2](https://github.com/slmingol/opnsense-cli/commit/47f5ab22d7e6e4e741aca605a3aae087c054fb45))
+
 ## [1.2.0](https://github.com/slmingol/opnsense-cli/compare/v1.1.0...v1.2.0) (2026-07-15)
 
 
