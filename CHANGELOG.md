@@ -1,3 +1,10 @@
+## [1.4.0](https://github.com/slmingol/opnsense-cli/compare/v1.3.0...v1.4.0) (2026-07-15)
+
+
+### Features
+
+* add config.mk include for site-local Makefile overrides ([5bdb328](https://github.com/slmingol/opnsense-cli/commit/5bdb3280ce7b45ae16ad72ca70754d3aeccd9f64))
+
 ## [1.3.0](https://github.com/slmingol/opnsense-cli/compare/v1.2.0...v1.3.0) (2026-07-15)
 
 
