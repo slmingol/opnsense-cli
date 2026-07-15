@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/slmingol/opnsense-cli/compare/v1.4.0...v1.4.1) (2026-07-15)
+
+
+### Documentation
+
+* replace SVG banner with ASCII art matching pfsense-cli style ([70a1e51](https://github.com/slmingol/opnsense-cli/commit/70a1e51c06e62ba1164eee5e4089a30e5cea9330))
+
 ## [1.4.0](https://github.com/slmingol/opnsense-cli/compare/v1.3.0...v1.4.0) (2026-07-15)
 
 
