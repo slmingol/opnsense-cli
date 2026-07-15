@@ -1,0 +1,7 @@
+# Bulk service import — CSV format
+# Required columns: alias, port, description
+# Optional: ssl (true/false), host_bub, host_lamolabs
+alias,port,description,ssl
+uptime-kuma,3001,Uptime Kuma — status monitoring,false
+vaultwarden,8080,Vaultwarden — Bitwarden-compatible password manager,false
+homeassistant,8123,Home Assistant — home automation,false

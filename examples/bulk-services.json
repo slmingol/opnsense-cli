@@ -1,0 +1,22 @@
+{
+  "services": [
+    {
+      "alias": "grafana",
+      "port": "3000",
+      "description": "Grafana — metrics dashboard",
+      "ssl": false
+    },
+    {
+      "alias": "loki",
+      "port": "3100",
+      "description": "Loki — log aggregation",
+      "ssl": false
+    },
+    {
+      "alias": "prometheus",
+      "port": "9090",
+      "description": "Prometheus — metrics collection",
+      "ssl": false
+    }
+  ]
+}

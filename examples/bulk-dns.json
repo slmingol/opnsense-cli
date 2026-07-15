@@ -1,0 +1,16 @@
+{
+  "dns": [
+    {
+      "host": "nas01",
+      "domain": "bub.lan",
+      "ip": "192.168.7.20",
+      "description": "TrueNAS primary"
+    },
+    {
+      "host": "print01",
+      "domain": "bub.lan",
+      "ip": "192.168.7.30",
+      "description": "Network printer"
+    }
+  ]
+}
