@@ -1,0 +1,11 @@
+services:
+  opnsense-cli:
+    build: .
+    container_name: opnsense-cli
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true

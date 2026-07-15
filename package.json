@@ -1,0 +1,45 @@
+{
+  "name": "opnsense-cli",
+  "version": "1.0.0",
+  "description": "CLI tool to manage OPNsense via REST API",
+  "main": "cli.js",
+  "bin": {
+    "opnsense": "./cli.js"
+  },
+  "scripts": {
+    "start": "node cli.js",
+    "docker:build": "docker compose build",
+    "docker:run": "docker compose run --rm opnsense-cli",
+    "semantic-release": "semantic-release"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/slmingol/opnsense-cli.git"
+  },
+  "keywords": [
+    "opnsense",
+    "dns",
+    "haproxy",
+    "wireguard",
+    "cli",
+    "network",
+    "automation"
+  ],
+  "author": "slmingol",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "axios": "^1.16.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^11.1.0",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^9.2.6",
+    "@semantic-release/npm": "^11.0.2",
+    "@semantic-release/release-notes-generator": "^12.1.0",
+    "conventional-changelog-conventionalcommits": "^7.0.2",
+    "semantic-release": "^23.0.0"
+  }
+}

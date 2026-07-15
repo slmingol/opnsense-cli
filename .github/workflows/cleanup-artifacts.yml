@@ -1,0 +1,172 @@
+name: Cleanup Release Artifacts
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      days_old:
+        description: 'Delete items older than this many days'
+        required: false
+        default: '7'
+      dry_run:
+        description: 'Dry run mode (true/false)'
+        required: false
+        default: 'false'
+
+permissions:
+  actions: write
+  contents: write
+  packages: write
+
+jobs:
+  cleanup-workflow-runs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old workflow runs
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: ${{ github.event.inputs.days_old || 7 }}
+          keep_minimum_runs: 3
+
+  cleanup-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove old artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DAYS_OLD=${{ github.event.inputs.days_old || 7 }}
+          SKIP_RECENT=3
+          CUTOFF=$(date -u -d "${DAYS_OLD} days ago" +%Y-%m-%dT%H:%M:%SZ)
+          TAGGED=$(gh api --paginate "repos/${{ github.repository }}/tags?per_page=100" \
+            | jq -rs '[.[].[] | .commit.sha]')
+          gh api --paginate "repos/${{ github.repository }}/actions/artifacts?per_page=100" \
+            | jq -rs --arg cutoff "$CUTOFF" --argjson skip "$SKIP_RECENT" --argjson tagged "$TAGGED" \
+              '[.[].artifacts[] |
+                 select(.created_at < $cutoff) |
+                 select(.workflow_run.head_sha as $sha | ($tagged | index($sha)) == null)] |
+               sort_by(.created_at) | reverse | .[($skip):] | .[].id' \
+            | while read -r id; do
+                gh api -X DELETE "repos/${{ github.repository }}/actions/artifacts/$id" \
+                  && echo "Deleted artifact $id" \
+                  || echo "Skipped artifact $id (not found)"
+              done
+
+  cleanup-docker-images:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old container images
+        uses: actions/delete-package-versions@v5
+        continue-on-error: true
+        with:
+          package-name: 'opnsense-cli'
+          package-type: 'container'
+          min-versions-to-keep: 5
+          delete-only-untagged-versions: 'false'
+
+  cleanup-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cleanup old caches
+        run: |
+          echo "Cleaning up caches older than ${{ github.event.inputs.days_old || 7 }} days"
+
+          gh extension install actions/gh-actions-cache || true
+
+          CACHE_KEYS=$(gh actions-cache list --limit 100 | cut -f1 || echo "")
+
+          if [ -z "$CACHE_KEYS" ]; then
+            echo "No caches found"
+            exit 0
+          fi
+
+          CUTOFF_DATE=$(date -u -d "${{ github.event.inputs.days_old || 7 }} days ago" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -v-${{ github.event.inputs.days_old || 7 }}d +%Y-%m-%dT%H:%M:%SZ)
+
+          echo "Deleting caches older than $CUTOFF_DATE"
+
+          echo "$CACHE_KEYS" | while read -r key; do
+            CACHE_INFO=$(gh actions-cache list --key "$key" --limit 1)
+            CACHE_DATE=$(echo "$CACHE_INFO" | awk '{print $3" "$4}')
+
+            if [[ "$CACHE_DATE" < "$CUTOFF_DATE" ]]; then
+              if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
+                echo "[DRY RUN] Would delete cache: $key (created: $CACHE_DATE)"
+              else
+                echo "Deleting cache: $key (created: $CACHE_DATE)"
+                gh actions-cache delete "$key" --confirm || true
+              fi
+            fi
+          done
+
+          echo "Cache cleanup completed"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  cleanup-releases:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Delete old releases
+        run: |
+          echo "Cleaning up releases older than 90 days (keeping last 10)"
+
+          RELEASES=$(gh release list --limit 100 --json tagName,createdAt,isLatest | jq -r '.[] | select(.isLatest == false) | "\(.tagName)|\(.createdAt)"')
+
+          if [ -z "$RELEASES" ]; then
+            echo "No releases to clean up"
+            exit 0
+          fi
+
+          CUTOFF_DATE=$(date -u -d "90 days ago" +%Y-%m-%d 2>/dev/null || date -u -v-90d +%Y-%m-%d)
+
+          echo "Releases older than $CUTOFF_DATE will be deleted"
+
+          TOTAL_RELEASES=$(echo "$RELEASES" | wc -l)
+          KEEP_COUNT=10
+          DELETE_COUNT=$((TOTAL_RELEASES - KEEP_COUNT))
+
+          if [ $DELETE_COUNT -le 0 ]; then
+            echo "Only $TOTAL_RELEASES releases found, keeping all (minimum: $KEEP_COUNT)"
+            exit 0
+          fi
+
+          echo "Found $TOTAL_RELEASES releases, will keep newest $KEEP_COUNT"
+
+          COUNTER=0
+          echo "$RELEASES" | while IFS='|' read -r tag created_at; do
+            COUNTER=$((COUNTER + 1))
+
+            if [ $COUNTER -le $KEEP_COUNT ]; then
+              echo "Keeping recent release: $tag (created: $created_at)"
+              continue
+            fi
+
+            RELEASE_DATE=$(echo "$created_at" | cut -d'T' -f1)
+
+            if [[ "$RELEASE_DATE" < "$CUTOFF_DATE" ]]; then
+              if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
+                echo "[DRY RUN] Would delete release: $tag (created: $RELEASE_DATE)"
+              else
+                echo "Deleting release: $tag (created: $RELEASE_DATE)"
+                gh release delete "$tag" --yes --cleanup-tag || true
+              fi
+            else
+              echo "Keeping release: $tag (created: $RELEASE_DATE, not old enough)"
+            fi
+          done
+
+          echo "Release cleanup completed"
+        env:
+          GH_TOKEN: ${{ github.token }}
