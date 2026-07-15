@@ -1,3 +1,10 @@
+## [1.2.0](https://github.com/slmingol/opnsense-cli/compare/v1.1.0...v1.2.0) (2026-07-15)
+
+
+### Features
+
+* add missing files from pfsense-cli parity ([858ae0a](https://github.com/slmingol/opnsense-cli/commit/858ae0a6a639ba23a9d5517d9d5061d8cc899f21))
+
 ## [1.1.0](https://github.com/slmingol/opnsense-cli/compare/v1.0.0...v1.1.0) (2026-07-15)
 
 
