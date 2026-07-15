@@ -1,6 +1,8 @@
 export NODE_NO_WARNINGS = 1
 export BUILDKIT_PROGRESS = quiet
 
+-include config.mk
+
 .PHONY: build run dns-list dns-add dns-update dns-delete dns-alias-add dns-alias-delete add-dual-alias haproxy-list haproxy-add haproxy-delete add-service delete-service list-hosts help cli-help test-api check-version wg-status wg-provision wg-apply wg-dry-run wg-teardown fw-rule-list fw-rule-add fw-rule-delete fw-rule-update fw-alias-list fw-alias-create fw-alias-add-host fw-alias-remove-host fw-alias-delete bulk-import bulk-export cert-list cert-import cert-delete cert-check config-history config-history-prune config-history-schedule config-history-unschedule config-history-cron-status dhcp-list dhcp-add dhcp-update dhcp-delete
 .DEFAULT_GOAL := help
 

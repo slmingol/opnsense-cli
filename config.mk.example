@@ -1,0 +1,17 @@
+# Copy to config.mk (gitignored) to persist site-specific Makefile defaults.
+# Values here override the Makefile defaults without modifying the Makefile itself.
+
+# Hostname (no domain) of the backend DNS host in DOMAIN_BACKEND
+HOST_BUB        = docker-host-01-svcs
+
+# Hostname (no domain) of the frontend DNS host in DOMAIN_FRONTEND
+HOST_LAMOLABS   = lamolabs-svcs
+
+# Internal/backend DNS domain (DNS aliases and HAProxy server addresses)
+DOMAIN_BACKEND  = bub.lan
+
+# External/frontend DNS domain (HAProxy hostnames, public-facing aliases)
+DOMAIN_FRONTEND = lamolabs.org
+
+# HAProxy frontend name to attach ACL rules to
+HAPROXY_FRONTEND = HomePrivateServers
