@@ -121,9 +121,6 @@ list-hosts: ## Show valid HOST_BUB and HOST_LAMOLABS values (queries live DNS)
 	  | grep -E '^\s*[0-9]+\.' | grep '\.$(DOMAIN_FRONTEND)' \
 	  | sed 's/.*[0-9]\+\. //; s/\.$(DOMAIN_FRONTEND)//'); \
 	if [ -z "$$result" ]; then echo "  (none found)"; else echo "$$result" | sed 's/^/  /'; fi
-	@echo ""
-	@echo "Usage:"
-	@echo "  make add-service ALIAS=myapp PORT=8080 DESC='My App' HOST_BUB=<value-above> HOST_LAMOLABS=<value-above>"
 
 ##@ DNS
 
