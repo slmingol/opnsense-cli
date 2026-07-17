@@ -34,7 +34,7 @@ support, and the firewall savepoint/rollback safety net.
 | **Firewall Aliases** | fw-alias:list, create, add-host, remove-host, delete | Live `alias_util` updates |
 | **DHCP** | dhcp:list, add, update, delete | Kea backend required |
 | **Certificates** | cert:list, import, delete, check | Raw PEM import; `check` exits 1 if expiring |
-| **HAProxy** | haproxy:list, add, delete, route-add, route-delete | Requires os-haproxy plugin |
+| **HAProxy** | haproxy:list, add, delete, route-add, route-delete, use-dns | Requires os-haproxy plugin |
 | **WireGuard** | wg:status, wg:provision, wg:teardown | Zero-touch ProtonVPN from `.conf` file |
 | **NordVPN** | nordvpn:rotate-wg, creds, servers, teardown-wg | WireGuard client rotation |
 | **Config** | config:history, config:history-prune | Web-UI fallback on 26.x; see note below |
