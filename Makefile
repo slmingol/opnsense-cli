@@ -200,6 +200,9 @@ haproxy-delete: ## Delete HAProxy backend (NAME=)
 	fi
 	@docker-compose run --rm opnsense-cli haproxy:delete --name $(NAME) 2>/dev/null
 
+haproxy-use-dns: ## Dry-run by default: show which backend IPs would convert to .bub.lan hostnames (APPLY=true to apply)
+	@docker-compose run --rm opnsense-cli haproxy:use-dns $(if $(filter true,$(APPLY)),--apply) 2>/dev/null
+
 ##@ WireGuard / ProtonVPN
 
 # Expand KILL_SWITCH='a/32 b/32' into repeated --kill-switch flags
@@ -541,3 +544,6 @@ cli-help: ## Show CLI command help (--help output)
 
 clean: ## Clean up Docker resources
 	docker-compose down -v
+
+.DEFAULT:
+	@:

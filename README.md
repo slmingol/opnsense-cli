@@ -273,6 +273,12 @@ opnsense haproxy:route-delete --frontend https-frontend --acl plex-acl
 
 # Delete backend
 opnsense haproxy:delete --name plex
+
+# Dry-run: show which server addresses would be converted to .bub.lan hostnames
+make haproxy-use-dns
+
+# Apply: commit the conversion
+make haproxy-use-dns APPLY=true
 ```
 
 ### WireGuard — ProtonVPN Zero-Touch Provisioning

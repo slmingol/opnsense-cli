@@ -2,7 +2,7 @@
 
 const { Command } = require('commander');
 const { listEntries, addEntry, updateEntry, deleteEntry, addAlias, deleteAlias: deleteDnsAlias } = require('./lib/dns');
-const { listBackends, addBackend, deleteBackend, addFrontendRoute, deleteFrontendRoute } = require('./lib/haproxy');
+const { listBackends, addBackend, deleteBackend, addFrontendRoute, deleteFrontendRoute, fixBackendDnsAddresses } = require('./lib/haproxy');
 const { listTunnels, applyProtonVPN, teardownProtonVPN } = require('./lib/wireguard');
 const { listAliases, createOrUpdateAlias, addAliasHost, removeAliasHost, deleteAlias,
         listRules, addRule, deleteRule, updateRule } = require('./lib/firewall');
@@ -149,6 +149,15 @@ program
   .requiredOption('-a, --acl <name>', 'ACL name')
   .action(async (options) => {
     try { await deleteFrontendRoute({ frontendName: options.frontend, aclName: options.acl }); }
+    catch (e) { console.error('Error:', e.message); process.exit(1); }
+  });
+
+program
+  .command('haproxy:use-dns')
+  .description('Convert HAProxy server addresses from IPs to .bub.lan hostnames (dry-run by default)')
+  .option('--apply', 'Commit changes to OPNsense', false)
+  .action(async (options) => {
+    try { await fixBackendDnsAddresses({ apply: options.apply }); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
