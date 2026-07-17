@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/slmingol/opnsense-cli/compare/v1.5.0...v1.5.1) (2026-07-17)
+
+
+### Documentation
+
+* add haproxy-use-dns to README command table and make help ([dd51255](https://github.com/slmingol/opnsense-cli/commit/dd512550be021ed74d01072cfb4896f0be1eea1b))
+
 ## [1.5.0](https://github.com/slmingol/opnsense-cli/compare/v1.4.2...v1.5.0) (2026-07-17)
 
 
