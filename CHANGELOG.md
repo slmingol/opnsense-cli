@@ -1,3 +1,10 @@
+## [1.5.0](https://github.com/slmingol/opnsense-cli/compare/v1.4.2...v1.5.0) (2026-07-17)
+
+
+### Features
+
+* add haproxy:use-dns command to convert IP backends to hostnames ([5564524](https://github.com/slmingol/opnsense-cli/commit/55645241169316acada033d85ede111df0e9b7b8))
+
 ## [1.4.2](https://github.com/slmingol/opnsense-cli/compare/v1.4.1...v1.4.2) (2026-07-15)
 
 
