@@ -1,3 +1,10 @@
+## [1.9.0](https://github.com/slmingol/opnsense-cli/compare/v1.8.0...v1.9.0) (2026-07-18)
+
+
+### Features
+
+* add haproxy-route-add and haproxy-route-delete Makefile targets ([bc1c204](https://github.com/slmingol/opnsense-cli/commit/bc1c204f1095531548da7a944a89a199ad1f0053))
+
 ## [1.8.0](https://github.com/slmingol/opnsense-cli/compare/v1.7.0...v1.8.0) (2026-07-18)
 
 
