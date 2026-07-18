@@ -4,7 +4,7 @@ export BUILDKIT_PROGRESS = quiet
 -include config.mk
 
 .PHONY: build run dns-list dns-add dns-update dns-delete dns-alias-add dns-alias-delete add-dual-alias \
-	haproxy-list haproxy-add haproxy-delete haproxy-use-dns haproxy-use-ip haproxy-disable-resolver haproxy-inspect haproxy-apply haproxy-restart \
+	haproxy-list haproxy-add haproxy-delete haproxy-use-dns haproxy-use-ip haproxy-disable-resolver haproxy-inspect haproxy-apply haproxy-restart haproxy-route-add haproxy-route-delete \
 	add-service delete-service list-hosts help cli-help test-api check-version \
 	wg-status wg-provision wg-apply wg-dry-run wg-teardown \
 	fw-rule-list fw-rule-add fw-rule-delete fw-rule-update \
@@ -238,6 +238,26 @@ haproxy-apply: ## Apply pending HAProxy config changes (reconfigure)
 
 haproxy-restart: ## Restart the HAProxy service
 	@node cli.js haproxy:restart 2>/dev/null
+
+FRONTEND   ?= $(HAPROXY_FRONTEND)
+ROUTE_HOST ?=
+BACKEND    ?=
+
+haproxy-route-add: ## Add frontend ACL+route to a backend (ACL= ROUTE_HOST= BACKEND= [FRONTEND=HomePrivateServers])
+	@if [ -z "$(ACL)" ] || [ -z "$(ROUTE_HOST)" ] || [ -z "$(BACKEND)" ]; then \
+		echo "Error: ACL, ROUTE_HOST, and BACKEND are required"; \
+		echo "Usage: make haproxy-route-add ACL=myapp ROUTE_HOST=myapp.lamolabs.org BACKEND=myapp"; \
+		exit 1; \
+	fi
+	@node cli.js haproxy:route-add --frontend "$(FRONTEND)" --acl "$(ACL)" --hostname "$(ROUTE_HOST)" --backend "$(BACKEND)" 2>/dev/null
+
+haproxy-route-delete: ## Remove a frontend ACL+route (ACL= [FRONTEND=HomePrivateServers])
+	@if [ -z "$(ACL)" ]; then \
+		echo "Error: ACL is required"; \
+		echo "Usage: make haproxy-route-delete ACL=myapp"; \
+		exit 1; \
+	fi
+	@node cli.js haproxy:route-delete --frontend "$(FRONTEND)" --acl "$(ACL)" 2>/dev/null
 
 ##@ WireGuard / ProtonVPN
 
