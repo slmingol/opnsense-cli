@@ -3,7 +3,16 @@ export BUILDKIT_PROGRESS = quiet
 
 -include config.mk
 
-.PHONY: build run dns-list dns-add dns-update dns-delete dns-alias-add dns-alias-delete add-dual-alias haproxy-list haproxy-add haproxy-delete add-service delete-service list-hosts help cli-help test-api check-version wg-status wg-provision wg-apply wg-dry-run wg-teardown fw-rule-list fw-rule-add fw-rule-delete fw-rule-update fw-alias-list fw-alias-create fw-alias-add-host fw-alias-remove-host fw-alias-delete bulk-import bulk-export cert-list cert-import cert-delete cert-check config-history config-history-prune config-history-schedule config-history-unschedule config-history-cron-status dhcp-list dhcp-add dhcp-update dhcp-delete
+.PHONY: build run dns-list dns-add dns-update dns-delete dns-alias-add dns-alias-delete add-dual-alias \
+	haproxy-list haproxy-add haproxy-delete haproxy-use-dns haproxy-inspect haproxy-apply haproxy-restart \
+	add-service delete-service list-hosts help cli-help test-api check-version \
+	wg-status wg-provision wg-apply wg-dry-run wg-teardown \
+	fw-rule-list fw-rule-add fw-rule-delete fw-rule-update \
+	fw-alias-list fw-alias-create fw-alias-add-host fw-alias-remove-host fw-alias-delete \
+	bulk-import bulk-export \
+	cert-list cert-import cert-delete cert-check cert-check-schedule cert-check-unschedule cert-check-cron-status \
+	config-history config-history-prune config-history-schedule config-history-unschedule config-history-cron-status \
+	dhcp-list dhcp-add dhcp-update dhcp-delete
 .DEFAULT_GOAL := help
 
 HOST_BUB        ?= docker-host-01-svcs
@@ -29,7 +38,7 @@ help: ## Show this help message
 	@printf "\n\033[1;37mOPNsense CLI\033[0m — DNS, DHCP & HAProxy management\n\n"
 	@awk 'BEGIN {FS = ":.*?## "} \
 	  /^##@/ { printf "\n\033[1;33m%s\033[0m\n", substr($$0, 5) } \
-	  /^[a-zA-Z_-]+:.*?## / { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' \
+	  /^[a-zA-Z_-]+:.*?## / { printf "  \033[36m%-28s\033[0m %s\n", $$1, $$2 }' \
 	  $(MAKEFILE_LIST)
 	@printf "\n"
 	@printf "\033[1mExamples:\033[0m\n"
@@ -49,12 +58,13 @@ help: ## Show this help message
 	@printf "  \033[32mmake haproxy-use-dns\033[0m   \033[90m# convert IP backend addresses to .bub.lan hostnames (APPLY=true to commit)\033[0m\n"
 	@printf "\n"
 	@printf "  \033[32mmake wg-provision\033[0m CONF=~/Downloads/protonvpn.conf KILL_SWITCH='192.168.7.6/32' KS_ALIAS=NordVPN_KS_Hosts\n"
-	@printf "  \033[32mmake wg-provision\033[0m CONF=~/Downloads/protonvpn.conf KILL_SWITCH='192.168.7.6/32 192.168.7.7/32' TUNNEL=ProtonVPN02 IFACE=PROTONVPN2 LISTEN_PORT=51822 MONITOR_IP=9.9.9.9\n"
+	@printf "  \033[32mmake wg-provision\033[0m CONF=~/Downloads/protonvpn.conf KILL_SWITCH='192.168.7.6/32 192.168.7.7/32'\n"
+	@printf "                    TUNNEL=ProtonVPN02 IFACE=PROTONVPN2 LISTEN_PORT=51822 MONITOR_IP=9.9.9.9\n"
 	@printf "  \033[32mmake wg-dry-run\033[0m   CONF=~/Downloads/protonvpn.conf KILL_SWITCH='192.168.7.6/32'\n"
 	@printf "  \033[32mmake wg-teardown\033[0m  KS_ALIAS=NordVPN_KS_Hosts \033[90m# remove rules, gateway, peer, NAT, and alias\033[0m\n"
 	@printf "  \033[32mmake wg-status\033[0m    \033[90m# show tunnel and peer status\033[0m\n"
 	@printf "\n"
-	@printf "  \033[32mmake fw-alias-list\033[0m                                         \033[90m# list all firewall aliases\033[0m\n"
+	@printf "  \033[32mmake fw-alias-list\033[0m       \033[90m# list all firewall aliases\033[0m\n"
 	@printf "  \033[32mmake fw-alias-add-host\033[0m    NAME=NordVPN_KS_Hosts HOST=192.168.7.7 DETAIL='pi-vpn2'\n"
 	@printf "  \033[32mmake fw-alias-remove-host\033[0m NAME=NordVPN_KS_Hosts HOST=192.168.7.7\n"
 	@printf "\n"
@@ -203,6 +213,20 @@ haproxy-delete: ## Delete HAProxy backend (NAME=)
 
 haproxy-use-dns: ## Dry-run by default: show which backend IPs would convert to .bub.lan hostnames (APPLY=true to apply)
 	@docker-compose run --rm opnsense-cli haproxy:use-dns $(if $(filter true,$(APPLY)),--apply) 2>/dev/null
+
+haproxy-inspect: ## Dump raw JSON for a named backend and its linked servers (NAME=)
+	@if [ -z "$(NAME)" ]; then \
+		echo "Error: NAME is required"; \
+		echo "Usage: make haproxy-inspect NAME=my-backend"; \
+		exit 1; \
+	fi
+	@node cli.js haproxy:inspect --name $(NAME) 2>/dev/null
+
+haproxy-apply: ## Apply pending HAProxy config changes (reconfigure)
+	@node cli.js haproxy:apply 2>/dev/null
+
+haproxy-restart: ## Restart the HAProxy service
+	@node cli.js haproxy:restart 2>/dev/null
 
 ##@ WireGuard / ProtonVPN
 
@@ -484,6 +508,23 @@ cert-delete: ## Delete a certificate (CERT_NAME=)
 
 cert-check: ## Exit 1 if any cert expires within EXPIRING days — for monitoring (default: 30)
 	@node cli.js cert:check --expiring "$(EXPIRING)"
+
+CERT_CHECK_SCHEDULE ?= 0 8 * * *
+CERT_CHECK_LOG      ?= /tmp/opnsense-cert-check.log
+
+cert-check-schedule: ## Install a daily cron to alert on expiring certs (EXPIRING=30 [CERT_CHECK_SCHEDULE="0 8 * * *"])
+	@JOB="$(CERT_CHECK_SCHEDULE) cd $(CURDIR) && EXPIRING=$(EXPIRING) LOG_FILE=$(CERT_CHECK_LOG) sh scripts/check-certs.sh"; \
+	( crontab -l 2>/dev/null | grep -v 'check-certs'; echo "$$JOB" ) | crontab -
+	@echo "Installed cron: $(CERT_CHECK_SCHEDULE)"
+	@echo "Logs: $(CERT_CHECK_LOG)"
+	@echo "Run 'make cert-check-cron-status' to verify"
+
+cert-check-unschedule: ## Remove the cert check cron job
+	@crontab -l 2>/dev/null | grep -v 'check-certs' | crontab - || true
+	@echo "Removed cert check cron job"
+
+cert-check-cron-status: ## Show current cert check cron job (if any)
+	@crontab -l 2>/dev/null | grep 'check-certs' || echo "(no cert check cron installed)"
 
 cert-renew-wildcard: ## Renew wildcard cert via acme.sh and import into OPNsense (DOMAIN= CERT_NAME= [DNS_HOOK=dns_cf])
 	@if [ -z "$(DOMAIN)" ] || [ -z "$(CERT_NAME)" ]; then \

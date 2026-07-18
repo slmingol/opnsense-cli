@@ -2,7 +2,7 @@
 
 const { Command } = require('commander');
 const { listEntries, addEntry, updateEntry, deleteEntry, addAlias, deleteAlias: deleteDnsAlias } = require('./lib/dns');
-const { listBackends, addBackend, deleteBackend, addFrontendRoute, deleteFrontendRoute, fixBackendDnsAddresses } = require('./lib/haproxy');
+const { listBackends, addBackend, deleteBackend, addFrontendRoute, deleteFrontendRoute, fixBackendDnsAddresses, inspectBackend, applyHaproxy, restartHaproxy } = require('./lib/haproxy');
 const { listTunnels, applyProtonVPN, teardownProtonVPN } = require('./lib/wireguard');
 const { listAliases, createOrUpdateAlias, addAliasHost, removeAliasHost, deleteAlias,
         listRules, addRule, deleteRule, updateRule } = require('./lib/firewall');
@@ -158,6 +158,31 @@ program
   .option('--apply', 'Commit changes to OPNsense', false)
   .action(async (options) => {
     try { await fixBackendDnsAddresses({ apply: options.apply }); }
+    catch (e) { console.error('Error:', e.message); process.exit(1); }
+  });
+
+program
+  .command('haproxy:inspect')
+  .description('Dump raw JSON for a named backend and its linked servers')
+  .requiredOption('-n, --name <name>', 'Backend name')
+  .action(async (options) => {
+    try { await inspectBackend({ name: options.name }); }
+    catch (e) { console.error('Error:', e.message); process.exit(1); }
+  });
+
+program
+  .command('haproxy:apply')
+  .description('Apply pending HAProxy config changes (reconfigure)')
+  .action(async () => {
+    try { await applyHaproxy(); }
+    catch (e) { console.error('Error:', e.message); process.exit(1); }
+  });
+
+program
+  .command('haproxy:restart')
+  .description('Restart the HAProxy service')
+  .action(async () => {
+    try { await restartHaproxy(); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
