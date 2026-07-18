@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/slmingol/opnsense-cli/compare/v1.9.0...v1.9.1) (2026-07-18)
+
+
+### Documentation
+
+* add WireGuard Watchdogs and Scripts sections to README ([e1a4743](https://github.com/slmingol/opnsense-cli/commit/e1a474389f7baea9eca014c4246ec881fd81cdcb))
+
 ## [1.9.0](https://github.com/slmingol/opnsense-cli/compare/v1.8.0...v1.9.0) (2026-07-18)
 
 
