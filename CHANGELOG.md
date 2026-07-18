@@ -1,3 +1,10 @@
+## [1.8.0](https://github.com/slmingol/opnsense-cli/compare/v1.7.0...v1.8.0) (2026-07-18)
+
+
+### Features
+
+* replace docker-compose with node cli.js; add nat:list/add/delete ([8f40c2d](https://github.com/slmingol/opnsense-cli/commit/8f40c2d5e2f8c43ecc0638db7b88c34aba75f6cf))
+
 ## [1.7.0](https://github.com/slmingol/opnsense-cli/compare/v1.6.0...v1.7.0) (2026-07-18)
 
 
