@@ -9,6 +9,7 @@ export BUILDKIT_PROGRESS = quiet
 	wg-status wg-provision wg-apply wg-dry-run wg-teardown \
 	fw-rule-list fw-rule-add fw-rule-delete fw-rule-update \
 	fw-alias-list fw-alias-create fw-alias-add-host fw-alias-remove-host fw-alias-delete \
+	nat-list nat-add nat-delete \
 	bulk-import bulk-export \
 	cert-list cert-import cert-delete cert-check cert-check-schedule cert-check-unschedule cert-check-cron-status \
 	config-history config-history-prune config-history-schedule config-history-unschedule config-history-cron-status \
@@ -84,13 +85,13 @@ add-service: ## Add complete service (ALIAS= PORT= DESC= [SSL=true]) - DNS + HAP
 		exit 1; \
 	fi
 	@printf "\n\033[1;36m[1/4]\033[0m DNS alias \033[36m$(ALIAS).$(DOMAIN_BACKEND)\033[0m → \033[36m$(HOST_BUB).$(DOMAIN_BACKEND)\033[0m \033[90m(backend)\033[0m\n"
-	@docker-compose run --rm opnsense-cli alias:add --host $(HOST_BUB) --domain $(DOMAIN_BACKEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_BACKEND) --description "$(DESC)" 2>/dev/null || true
+	@node cli.js alias:add --host $(HOST_BUB) --domain $(DOMAIN_BACKEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_BACKEND) --description "$(DESC)" 2>/dev/null || true
 	@printf "\n\033[1;36m[2/4]\033[0m DNS alias \033[36m$(ALIAS).$(DOMAIN_FRONTEND)\033[0m → \033[36m$(HOST_LAMOLABS).$(DOMAIN_FRONTEND)\033[0m \033[90m(frontend)\033[0m\n"
-	@docker-compose run --rm opnsense-cli alias:add --host $(HOST_LAMOLABS) --domain $(DOMAIN_FRONTEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_FRONTEND) --description "$(DESC)" 2>/dev/null || true
+	@node cli.js alias:add --host $(HOST_LAMOLABS) --domain $(DOMAIN_FRONTEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_FRONTEND) --description "$(DESC)" 2>/dev/null || true
 	@printf "\n\033[1;36m[3/4]\033[0m HAProxy backend \033[36m$(ALIAS)\033[0m → \033[36m$(ALIAS).$(DOMAIN_BACKEND):$(PORT)\033[0m$(if $(filter true,$(SSL)), \033[33m[SSL]\033[0m)\n"
-	@docker-compose run --rm opnsense-cli haproxy:add --name $(ALIAS) --server-name $(ALIAS).$(DOMAIN_BACKEND) --server-address $(ALIAS).$(DOMAIN_BACKEND) --server-port $(PORT) $(if $(filter true,$(SSL)),--ssl) 2>/dev/null
+	@node cli.js haproxy:add --name $(ALIAS) --server-name $(ALIAS).$(DOMAIN_BACKEND) --server-address $(ALIAS).$(DOMAIN_BACKEND) --server-port $(PORT) $(if $(filter true,$(SSL)),--ssl) 2>/dev/null
 	@printf "\n\033[1;36m[4/4]\033[0m Frontend route \033[36m$(ALIAS).$(DOMAIN_FRONTEND)\033[0m → \033[36m$(ALIAS)\033[0m backend\n"
-	@docker-compose run --rm opnsense-cli haproxy:route-add --frontend $(HAPROXY_FRONTEND) --acl $(ALIAS) --hostname $(ALIAS).$(DOMAIN_FRONTEND) --backend $(ALIAS) 2>/dev/null
+	@node cli.js haproxy:route-add --frontend $(HAPROXY_FRONTEND) --acl $(ALIAS) --hostname $(ALIAS).$(DOMAIN_FRONTEND) --backend $(ALIAS) 2>/dev/null
 	@printf "\n\033[1;32m✓ Service \033[1;37m$(ALIAS)\033[1;32m fully configured!\033[0m\n"
 	@printf "\n  \033[1mDNS:\033[0m\n"
 	@printf "    \033[90m-\033[0m \033[36m$(ALIAS).$(DOMAIN_BACKEND)\033[0m \033[90m→ $(HOST_BUB).$(DOMAIN_BACKEND) (backend)\033[0m\n"
@@ -108,13 +109,13 @@ delete-service: ## Remove complete service (ALIAS=) - DNS + HAProxy (reverse of 
 		exit 1; \
 	fi
 	@printf "\n\033[1;36m[1/4]\033[0m Frontend route \033[36m$(ALIAS).$(DOMAIN_FRONTEND)\033[0m\n"
-	@docker-compose run --rm opnsense-cli haproxy:route-delete --frontend $(HAPROXY_FRONTEND) --acl $(ALIAS) 2>/dev/null || true
+	@node cli.js haproxy:route-delete --frontend $(HAPROXY_FRONTEND) --acl $(ALIAS) 2>/dev/null || true
 	@printf "\n\033[1;36m[2/4]\033[0m HAProxy backend \033[36m$(ALIAS)\033[0m\n"
-	@docker-compose run --rm opnsense-cli haproxy:delete --name $(ALIAS) 2>/dev/null || true
+	@node cli.js haproxy:delete --name $(ALIAS) 2>/dev/null || true
 	@printf "\n\033[1;36m[3/4]\033[0m DNS alias \033[36m$(ALIAS).$(DOMAIN_FRONTEND)\033[0m → \033[36m$(HOST_LAMOLABS).$(DOMAIN_FRONTEND)\033[0m \033[90m(frontend)\033[0m\n"
-	@docker-compose run --rm opnsense-cli alias:delete --host $(HOST_LAMOLABS) --domain $(DOMAIN_FRONTEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_FRONTEND) 2>/dev/null || true
+	@node cli.js alias:delete --host $(HOST_LAMOLABS) --domain $(DOMAIN_FRONTEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_FRONTEND) 2>/dev/null || true
 	@printf "\n\033[1;36m[4/4]\033[0m DNS alias \033[36m$(ALIAS).$(DOMAIN_BACKEND)\033[0m → \033[36m$(HOST_BUB).$(DOMAIN_BACKEND)\033[0m \033[90m(backend)\033[0m\n"
-	@docker-compose run --rm opnsense-cli alias:delete --host $(HOST_BUB) --domain $(DOMAIN_BACKEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_BACKEND) 2>/dev/null || true
+	@node cli.js alias:delete --host $(HOST_BUB) --domain $(DOMAIN_BACKEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_BACKEND) 2>/dev/null || true
 	@printf "\n\033[1;32m✓ Service \033[1;37m$(ALIAS)\033[1;32m removed!\033[0m\n"
 	@printf "\n  \033[1mDeleted:\033[0m\n"
 	@printf "    \033[90m-\033[0m Frontend ACL+Action: \033[36m$(ALIAS).$(DOMAIN_FRONTEND)\033[0m\n"
@@ -126,13 +127,13 @@ list-hosts: ## Show valid HOST_BUB and HOST_LAMOLABS values (queries live DNS)
 	@echo "Querying OPNsense DNS for registered hosts..."
 	@echo ""
 	@echo "Backend hosts  (HOST_BUB candidates — $(DOMAIN_BACKEND) domain):"
-	@result=$$(docker-compose run --rm opnsense-cli list 2>/dev/null \
+	@result=$$(node cli.js list 2>/dev/null \
 	  | grep -E '^\s*[0-9]+\.' | grep '\.$(DOMAIN_BACKEND)' \
 	  | sed 's/.*[0-9]\+\. //; s/\.$(DOMAIN_BACKEND)//'); \
 	if [ -z "$$result" ]; then echo "  (none found)"; else echo "$$result" | sed 's/^/  /'; fi
 	@echo ""
 	@echo "Frontend hosts (HOST_LAMOLABS candidates — $(DOMAIN_FRONTEND) domain):"
-	@result=$$(docker-compose run --rm opnsense-cli list 2>/dev/null \
+	@result=$$(node cli.js list 2>/dev/null \
 	  | grep -E '^\s*[0-9]+\.' | grep '\.$(DOMAIN_FRONTEND)' \
 	  | sed 's/.*[0-9]\+\. //; s/\.$(DOMAIN_FRONTEND)//'); \
 	if [ -z "$$result" ]; then echo "  (none found)"; else echo "$$result" | sed 's/^/  /'; fi
@@ -140,7 +141,7 @@ list-hosts: ## Show valid HOST_BUB and HOST_LAMOLABS values (queries live DNS)
 ##@ DNS
 
 dns-list: ## List all DNS entries
-	@docker-compose run --rm opnsense-cli list 2>/dev/null
+	@node cli.js list 2>/dev/null
 
 dns-add: ## Add DNS entry (HOST= DOMAIN= IP= [DESC=])
 	@if [ -z "$(HOST)" ] || [ -z "$(DOMAIN)" ] || [ -z "$(IP)" ]; then \
@@ -148,7 +149,7 @@ dns-add: ## Add DNS entry (HOST= DOMAIN= IP= [DESC=])
 		echo "Usage: make dns-add HOST=myserver DOMAIN=local.lan IP=192.168.1.100 [DESC='Description']"; \
 		exit 1; \
 	fi
-	@docker-compose run --rm opnsense-cli add --host $(HOST) --domain $(DOMAIN) --ip $(IP) $(if $(DESC),--description "$(DESC)") 2>/dev/null
+	@node cli.js add --host $(HOST) --domain $(DOMAIN) --ip $(IP) $(if $(DESC),--description "$(DESC)") 2>/dev/null
 
 dns-update: ## Update DNS entry (HOST= DOMAIN= [IP=] [DESC=])
 	@if [ -z "$(HOST)" ] || [ -z "$(DOMAIN)" ]; then \
@@ -156,7 +157,7 @@ dns-update: ## Update DNS entry (HOST= DOMAIN= [IP=] [DESC=])
 		echo "Usage: make dns-update HOST=myserver DOMAIN=local.lan [IP=192.168.1.101] [DESC='Description']"; \
 		exit 1; \
 	fi
-	@docker-compose run --rm opnsense-cli update --host $(HOST) --domain $(DOMAIN) $(if $(IP),--ip $(IP)) $(if $(DESC),--description "$(DESC)") 2>/dev/null
+	@node cli.js update --host $(HOST) --domain $(DOMAIN) $(if $(IP),--ip $(IP)) $(if $(DESC),--description "$(DESC)") 2>/dev/null
 
 dns-delete: ## Delete DNS entry (HOST= DOMAIN=)
 	@if [ -z "$(HOST)" ] || [ -z "$(DOMAIN)" ]; then \
@@ -164,7 +165,7 @@ dns-delete: ## Delete DNS entry (HOST= DOMAIN=)
 		echo "Usage: make dns-delete HOST=myserver DOMAIN=local.lan"; \
 		exit 1; \
 	fi
-	@docker-compose run --rm opnsense-cli delete --host $(HOST) --domain $(DOMAIN) 2>/dev/null
+	@node cli.js delete --host $(HOST) --domain $(DOMAIN) 2>/dev/null
 
 dns-alias-add: ## Add DNS alias (HOST= DOMAIN= ALIAS= ALIAS_DOMAIN= [DESC=])
 	@if [ -z "$(HOST)" ] || [ -z "$(DOMAIN)" ] || [ -z "$(ALIAS)" ] || [ -z "$(ALIAS_DOMAIN)" ]; then \
@@ -172,7 +173,7 @@ dns-alias-add: ## Add DNS alias (HOST= DOMAIN= ALIAS= ALIAS_DOMAIN= [DESC=])
 		echo "Usage: make dns-alias-add HOST=myserver DOMAIN=local.lan ALIAS=www ALIAS_DOMAIN=local.lan [DESC='Description']"; \
 		exit 1; \
 	fi
-	@docker-compose run --rm opnsense-cli alias:add --host $(HOST) --domain $(DOMAIN) --alias-host $(ALIAS) --alias-domain $(ALIAS_DOMAIN) $(if $(DESC),--description "$(DESC)") 2>/dev/null
+	@node cli.js alias:add --host $(HOST) --domain $(DOMAIN) --alias-host $(ALIAS) --alias-domain $(ALIAS_DOMAIN) $(if $(DESC),--description "$(DESC)") 2>/dev/null
 
 dns-alias-delete: ## Delete DNS alias (HOST= DOMAIN= ALIAS= ALIAS_DOMAIN=)
 	@if [ -z "$(HOST)" ] || [ -z "$(DOMAIN)" ] || [ -z "$(ALIAS)" ] || [ -z "$(ALIAS_DOMAIN)" ]; then \
@@ -180,7 +181,7 @@ dns-alias-delete: ## Delete DNS alias (HOST= DOMAIN= ALIAS= ALIAS_DOMAIN=)
 		echo "Usage: make dns-alias-delete HOST=myserver DOMAIN=local.lan ALIAS=www ALIAS_DOMAIN=local.lan"; \
 		exit 1; \
 	fi
-	@docker-compose run --rm opnsense-cli alias:delete --host $(HOST) --domain $(DOMAIN) --alias-host $(ALIAS) --alias-domain $(ALIAS_DOMAIN) 2>/dev/null
+	@node cli.js alias:delete --host $(HOST) --domain $(DOMAIN) --alias-host $(ALIAS) --alias-domain $(ALIAS_DOMAIN) 2>/dev/null
 
 # Usage: make add-dual-alias ALIAS=myapp DESC="My App - https://github.com/..."
 add-dual-alias: ## Add alias to both DOMAIN_BACKEND and DOMAIN_FRONTEND (ALIAS= DESC=)
@@ -190,14 +191,14 @@ add-dual-alias: ## Add alias to both DOMAIN_BACKEND and DOMAIN_FRONTEND (ALIAS= 
 		exit 1; \
 	fi
 	@echo "Adding $(ALIAS) alias to $(HOST_BUB).$(DOMAIN_BACKEND)..."
-	@docker-compose run --rm opnsense-cli alias:add --host $(HOST_BUB) --domain $(DOMAIN_BACKEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_BACKEND) --description "$(DESC)" 2>/dev/null
+	@node cli.js alias:add --host $(HOST_BUB) --domain $(DOMAIN_BACKEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_BACKEND) --description "$(DESC)" 2>/dev/null
 	@echo "Adding $(ALIAS) alias to $(HOST_LAMOLABS).$(DOMAIN_FRONTEND)..."
-	@docker-compose run --rm opnsense-cli alias:add --host $(HOST_LAMOLABS) --domain $(DOMAIN_FRONTEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_FRONTEND) --description "$(DESC)" 2>/dev/null
+	@node cli.js alias:add --host $(HOST_LAMOLABS) --domain $(DOMAIN_FRONTEND) --alias-host $(ALIAS) --alias-domain $(DOMAIN_FRONTEND) --description "$(DESC)" 2>/dev/null
 
 ##@ HAProxy
 
 haproxy-list: ## List all HAProxy backends
-	@docker-compose run --rm opnsense-cli haproxy:list 2>/dev/null
+	@node cli.js haproxy:list 2>/dev/null
 
 haproxy-add: ## Add HAProxy backend (NAME= SERVER= PORT=)
 	@if [ -z "$(NAME)" ] || [ -z "$(SERVER)" ] || [ -z "$(PORT)" ]; then \
@@ -205,7 +206,7 @@ haproxy-add: ## Add HAProxy backend (NAME= SERVER= PORT=)
 		echo "Usage: make haproxy-add NAME=backend-name SERVER=server.domain.com PORT=8080"; \
 		exit 1; \
 	fi
-	@docker-compose run --rm opnsense-cli haproxy:add --name $(NAME) --server-name $(SERVER) --server-address $(SERVER) --server-port $(PORT) $(if $(filter true,$(SSL)),--ssl) 2>/dev/null
+	@node cli.js haproxy:add --name $(NAME) --server-name $(SERVER) --server-address $(SERVER) --server-port $(PORT) $(if $(filter true,$(SSL)),--ssl) 2>/dev/null
 
 haproxy-delete: ## Delete HAProxy backend (NAME=)
 	@if [ -z "$(NAME)" ]; then \
@@ -213,7 +214,7 @@ haproxy-delete: ## Delete HAProxy backend (NAME=)
 		echo "Usage: make haproxy-delete NAME=backend-name"; \
 		exit 1; \
 	fi
-	@docker-compose run --rm opnsense-cli haproxy:delete --name $(NAME) 2>/dev/null
+	@node cli.js haproxy:delete --name $(NAME) 2>/dev/null
 
 haproxy-use-dns: ## Dry-run by default: show which backend IPs would convert to .bub.lan hostnames (APPLY=true to apply, NAME= to scope)
 	@node cli.js haproxy:use-dns $(if $(filter true,$(APPLY)),--apply) $(if $(NAME),--name $(NAME)) 2>/dev/null
@@ -433,6 +434,44 @@ fw-alias-delete: ## Delete a firewall alias (NAME=)
 	fi
 	@node cli.js fw-alias:delete --name "$(NAME)"
 
+##@ NAT Port Forwards
+
+NAT_PORT   ?=
+NAT_TARGET ?=
+NAT_PROTO  ?= TCP/UDP
+NAT_IFACE  ?= wan
+NAT_LOCAL_PORT ?=
+NAT_DESC   ?=
+NAT_ID     ?=
+
+nat-list: ## List NAT port forward rules ([FILTER=])
+	@node cli.js nat:list $(if $(FILTER),--filter "$(FILTER)")
+
+nat-add: ## Add a NAT port forward rule (NAT_PORT= NAT_TARGET= [NAT_PROTO=TCP/UDP] [NAT_IFACE=wan] [NAT_LOCAL_PORT=] [NAT_DESC=])
+	@if [ -z "$(NAT_PORT)" ] || [ -z "$(NAT_TARGET)" ]; then \
+		echo "Error: NAT_PORT and NAT_TARGET are required"; \
+		echo "Usage: make nat-add NAT_PORT=51413 NAT_TARGET=192.168.13.10 NAT_DESC='Transmission'"; \
+		exit 1; \
+	fi
+	@node cli.js nat:add \
+	  --dest-port "$(NAT_PORT)" \
+	  --target "$(NAT_TARGET)" \
+	  --protocol "$(NAT_PROTO)" \
+	  --interface "$(NAT_IFACE)" \
+	  $(if $(NAT_LOCAL_PORT),--local-port "$(NAT_LOCAL_PORT)") \
+	  $(if $(NAT_DESC),--description "$(NAT_DESC)")
+
+nat-delete: ## Delete a NAT port forward rule (NAT_ID=<uuid> or NAT_DESC=<exact description>)
+	@if [ -z "$(NAT_ID)" ] && [ -z "$(NAT_DESC)" ]; then \
+		echo "Error: NAT_ID or NAT_DESC is required"; \
+		echo "Usage: make nat-delete NAT_ID=<uuid>"; \
+		echo "       make nat-delete NAT_DESC='Transmission torrent client'"; \
+		exit 1; \
+	fi
+	@node cli.js nat:delete \
+	  $(if $(NAT_ID),--id "$(NAT_ID)") \
+	  $(if $(NAT_DESC),--description "$(NAT_DESC)")
+
 ##@ Bulk Operations
 
 bulk-import: ## Import services/DNS/HAProxy from JSON or CSV (BULK_FILE= [DRY_RUN=1])
@@ -592,7 +631,7 @@ check-version: ## Check OPNsense firmware version
 	@docker-compose run --rm --entrypoint sh opnsense-cli -c 'apk add --quiet curl > /dev/null 2>&1 && echo "Firmware status:" && curl -s -k -u "$$OPNSENSE_API_KEY:$$OPNSENSE_API_SECRET" $$OPNSENSE_HOST/api/core/firmware/status | head -5 && echo "" && echo "API connectivity: OK"'
 
 cli-help: ## Show CLI command help (--help output)
-	docker-compose run --rm opnsense-cli --help
+	@node cli.js --help
 
 clean: ## Clean up Docker resources
 	docker-compose down -v

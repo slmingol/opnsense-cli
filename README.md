@@ -37,6 +37,7 @@ support, and the firewall savepoint/rollback safety net.
 | **HAProxy** | haproxy:list, add, delete, route-add, route-delete, use-dns, use-ip, disable-resolver, inspect, apply, restart | Requires os-haproxy plugin |
 | **WireGuard** | wg:status, wg:provision, wg:teardown | Zero-touch ProtonVPN from `.conf` file |
 | **NordVPN** | nordvpn:rotate-wg, creds, servers, teardown-wg | WireGuard client rotation |
+| **NAT** | nat:list, add, delete | Port forwards; requires OPNsense 24.1+ |
 | **Config** | config:history, config:history-prune | Web-UI fallback on 26.x; see note below |
 | **Bulk** | bulk:import, bulk:export | JSON + CSV; dry-run support |
 
@@ -372,6 +373,35 @@ opnsense nordvpn:teardown-wg --server-name NordVPNWG01 --delete-tunnel
 opnsense config:history
 opnsense config:history-prune --keep-last 20
 ```
+
+### NAT Port Forwards
+
+> **Requires OPNsense 24.1+.** The `/api/firewall/nat/` endpoint was added in that release.
+
+```bash
+# List all port forwards
+make nat-list
+
+# Filter by description
+make nat-list FILTER=transmission
+
+# Add a port forward (external 51413 → internal host 192.168.13.10:51413)
+make nat-add NAT_PORT=51413 NAT_TARGET=192.168.13.10 NAT_DESC='Transmission'
+
+# Forward to a different internal port
+make nat-add NAT_PORT=80 NAT_TARGET=192.168.1.100 NAT_LOCAL_PORT=8080 NAT_DESC='Nginx'
+
+# TCP only
+make nat-add NAT_PORT=22 NAT_TARGET=192.168.1.50 NAT_PROTO=TCP NAT_DESC='SSH jump host'
+
+# Delete by uuid (shown in nat-list output)
+make nat-delete NAT_ID=a1b2c3d4-...
+
+# Delete by exact description
+make nat-delete NAT_DESC='Transmission'
+```
+
+> **Note:** OPNsense does not auto-create an associated firewall pass rule when adding a port forward via the API. Add one separately with `make fw-rule-add` if needed.
 
 ### Bulk Import / Export
 

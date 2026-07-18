@@ -5,7 +5,8 @@ const { listEntries, addEntry, updateEntry, deleteEntry, addAlias, deleteAlias: 
 const { listBackends, addBackend, deleteBackend, addFrontendRoute, deleteFrontendRoute, fixBackendDnsAddresses, fixBackendIpAddresses, disableBackendResolver, inspectBackend, applyHaproxy, restartHaproxy } = require('./lib/haproxy');
 const { listTunnels, applyProtonVPN, teardownProtonVPN } = require('./lib/wireguard');
 const { listAliases, createOrUpdateAlias, addAliasHost, removeAliasHost, deleteAlias,
-        listRules, addRule, deleteRule, updateRule } = require('./lib/firewall');
+        listRules, addRule, deleteRule, updateRule,
+        listPortForwards, addPortForward, deletePortForward } = require('./lib/firewall');
 const { rotateNordVPNWG, printNordVPNCreds, listNordVPNServers, teardownNordVPNWG } = require('./lib/nordvpn');
 const { bulkImport, bulkExport } = require('./lib/bulk');
 const { listCerts, importCert, deleteCert, checkCerts } = require('./lib/cert');
@@ -467,6 +468,57 @@ program
   .requiredOption('-n, --name <name>', 'Alias name')
   .action(async (options) => {
     try { await deleteAlias({ name: options.name }); }
+    catch (e) { console.error('Error:', e.message); process.exit(1); }
+  });
+
+// ---------------------------------------------------------------------------
+// NAT port forward commands
+// ---------------------------------------------------------------------------
+
+program
+  .command('nat:list')
+  .description('List NAT port forward rules')
+  .option('-f, --filter <text>', 'Filter by description (case-insensitive substring)')
+  .action(async (options) => {
+    try { await listPortForwards({ filter: options.filter }); }
+    catch (e) { console.error('Error:', e.message); process.exit(1); }
+  });
+
+program
+  .command('nat:add')
+  .description('Add a NAT port forward rule (requires OPNsense 24.1+)')
+  .requiredOption('--dest-port <port>',   'External port to forward (destination)')
+  .requiredOption('--target <ip>',        'Internal IP to forward traffic to')
+  .option('-i, --interface <iface>',      'WAN interface name', 'wan')
+  .option('-p, --protocol <proto>',       'Protocol: TCP | UDP | TCP/UDP', 'TCP/UDP')
+  .option('-s, --source <src>',           'Source address filter', 'any')
+  .option('--local-port <port>',          'Internal port (defaults to dest-port)')
+  .option('-d, --destination <dst>',      'Destination address', 'any')
+  .option('-D, --description <text>',     'Rule description')
+  .option('--disabled',                   'Create rule in disabled state')
+  .action(async (options) => {
+    try {
+      await addPortForward({
+        iface:       options.interface,
+        protocol:    options.protocol,
+        source:      options.source,
+        destination: options.destination,
+        destPort:    options.destPort,
+        target:      options.target,
+        localPort:   options.localPort || null,
+        description: options.description || '',
+        disabled:    !!options.disabled,
+      });
+    } catch (e) { console.error('Error:', e.message); process.exit(1); }
+  });
+
+program
+  .command('nat:delete')
+  .description('Delete a NAT port forward rule by uuid or description')
+  .option('-i, --id <uuid>',            'Rule uuid (from nat:list)')
+  .option('-D, --description <text>',   'Exact rule description (used if --id not given)')
+  .action(async (options) => {
+    try { await deletePortForward({ id: options.id, description: options.description }); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
