@@ -363,6 +363,48 @@ opnsense nordvpn:teardown-wg --server-name NordVPNWG01 --delete-tunnel
 0 */6 * * *   root   /usr/local/bin/node /path/to/opnsense-cli/cli.js nordvpn:rotate-wg --token $NORDVPN_TOKEN
 ```
 
+### WireGuard Watchdogs
+
+`scripts/protonvpn-wg-watchdog.sh` and `scripts/nordvpn-wg-watchdog.sh` run on the OPNsense router itself (not the client machine). They prevent the WireGuard REKEY_AFTER_TIME=120s simultaneous-initiation deadlock by proactively resetting the peer every 85 seconds when the gateway is healthy, and silencing initiations (removing the peer) during a 300-second backoff when offline.
+
+The NordVPN watchdog also escalates: if the gateway stays down for more than ~10 minutes it fetches a fresh server from the NordVPN public API and rotates the peer automatically.
+
+**Deploy** (SSH to OPNsense as root):
+
+```bash
+# ProtonVPN watchdog
+scp scripts/protonvpn-wg-watchdog.sh root@opnsense:/usr/local/bin/
+ssh root@opnsense "
+  chmod +x /usr/local/bin/protonvpn-wg-watchdog.sh
+  cat > /var/db/protonvpn-wg-peer.conf << 'EOF'
+PEER_PK=<server_pubkey>
+ENDPOINT=<server_ip>:51820
+ALLOWED_IPS=0.0.0.0/0,::/0
+EOF
+  chmod 600 /var/db/protonvpn-wg-peer.conf
+  date +%s > /var/db/protonvpn-wg-last-reset
+"
+# Then add via OPNsense GUI: System → Settings → Cron
+#   */1 * * * *   root   /usr/local/bin/protonvpn-wg-watchdog.sh
+
+# NordVPN watchdog
+scp scripts/nordvpn-wg-watchdog.sh root@opnsense:/usr/local/bin/
+ssh root@opnsense "
+  chmod +x /usr/local/bin/nordvpn-wg-watchdog.sh
+  cat > /var/db/nordvpn-wg-peer.conf << 'EOF'
+PEER_PK=<server_pubkey>
+ENDPOINT=<server_ip>:51820
+ALLOWED_IPS=0.0.0.0/0,::/0
+EOF
+  chmod 600 /var/db/nordvpn-wg-peer.conf
+  date +%s > /var/db/nordvpn-wg-last-reset
+"
+# Then add via OPNsense GUI: System → Settings → Cron
+#   */1 * * * *   root   /usr/local/bin/nordvpn-wg-watchdog.sh
+```
+
+Edit `WG_IFACE` and `GW_NAME` at the top of each script to match your OPNsense interface and gateway names (defaults: `tun_wg1` / `PROTONVPN_GW` or `NORDVPNWG_GW`).
+
 ### Config History
 
 > **Note:** OPNsense 26.x does not expose a config backup REST API. The `config:history` and `config:history-prune` commands will print the web UI URL instead.
@@ -476,6 +518,22 @@ grafana,3000,Grafana dashboards
 | Optics/DDM | `/api/v2/diagnostics/command_prompt` | **Not available** (no shell exec API) |
 | Cert renew | ACME + import in one step | **Not available** (ACME plugin only) |
 | Config history | REST API | **Not available** (web UI only on 26.x) |
+
+---
+
+## Scripts
+
+- **[setup-alias.sh](scripts/setup-alias.sh)** — adds an `opnsense` shell alias pointing at `node cli.js`. Source it from `~/.bashrc` or `~/.zshrc`:
+  ```bash
+  source /path/to/opnsense-cli/scripts/setup-alias.sh
+  # then: opnsense haproxy:list
+  ```
+- **[check-certs.sh](scripts/check-certs.sh)** — cron-safe cert expiry wrapper; sources `.env`, logs with timestamps, exits 1 on expiry. Installed by `make cert-check-schedule`.
+- **[prune-config-history.sh](scripts/prune-config-history.sh)** — cron-safe config history prune wrapper. Installed by `make config-history-schedule`.
+- **[renew-wildcard-cert.sh](scripts/renew-wildcard-cert.sh)** — renews a wildcard cert via acme.sh and imports it. Used by `make cert-renew-wildcard`.
+- **[protonvpn-wg-watchdog.sh](scripts/protonvpn-wg-watchdog.sh)** — ProtonVPN WireGuard deadlock-prevention watchdog. Runs on the OPNsense router via cron. See [WireGuard Watchdogs](#wireguard-watchdogs).
+- **[nordvpn-wg-watchdog.sh](scripts/nordvpn-wg-watchdog.sh)** — NordVPN WireGuard watchdog with auto-recovery server rotation. See [WireGuard Watchdogs](#wireguard-watchdogs).
+- **[migrate-ks-to-alias.js](scripts/migrate-ks-to-alias.js)** — one-time migration: converts per-IP kill-switch rules to alias-based rules.
 
 ---
 
