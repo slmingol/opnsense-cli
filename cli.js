@@ -2,7 +2,7 @@
 
 const { Command } = require('commander');
 const { listEntries, addEntry, updateEntry, deleteEntry, addAlias, deleteAlias: deleteDnsAlias } = require('./lib/dns');
-const { listBackends, addBackend, deleteBackend, addFrontendRoute, deleteFrontendRoute, fixBackendDnsAddresses, inspectBackend, applyHaproxy, restartHaproxy } = require('./lib/haproxy');
+const { listBackends, addBackend, deleteBackend, addFrontendRoute, deleteFrontendRoute, fixBackendDnsAddresses, fixBackendIpAddresses, disableBackendResolver, inspectBackend, applyHaproxy, restartHaproxy } = require('./lib/haproxy');
 const { listTunnels, applyProtonVPN, teardownProtonVPN } = require('./lib/wireguard');
 const { listAliases, createOrUpdateAlias, addAliasHost, removeAliasHost, deleteAlias,
         listRules, addRule, deleteRule, updateRule } = require('./lib/firewall');
@@ -155,9 +155,30 @@ program
 program
   .command('haproxy:use-dns')
   .description('Convert HAProxy server addresses from IPs to .bub.lan hostnames (dry-run by default)')
+  .option('-n, --name <name>', 'Scope to a single backend by name')
   .option('--apply', 'Commit changes to OPNsense', false)
   .action(async (options) => {
-    try { await fixBackendDnsAddresses({ apply: options.apply }); }
+    try { await fixBackendDnsAddresses({ apply: options.apply, name: options.name || null }); }
+    catch (e) { console.error('Error:', e.message); process.exit(1); }
+  });
+
+program
+  .command('haproxy:use-ip')
+  .description('Convert HAProxy server addresses from hostnames to static IPs (dry-run by default)')
+  .option('-n, --name <name>', 'Scope to a single backend by name')
+  .option('--apply', 'Commit changes to OPNsense', false)
+  .action(async (options) => {
+    try { await fixBackendIpAddresses({ apply: options.apply, name: options.name || null }); }
+    catch (e) { console.error('Error:', e.message); process.exit(1); }
+  });
+
+program
+  .command('haproxy:disable-resolver')
+  .description('Clear resolver setting on backend servers (dry-run by default)')
+  .option('-n, --name <name>', 'Scope to a single backend by name')
+  .option('--apply', 'Commit changes to OPNsense', false)
+  .action(async (options) => {
+    try { await disableBackendResolver({ apply: options.apply, name: options.name || null }); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 

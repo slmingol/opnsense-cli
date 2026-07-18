@@ -33,8 +33,8 @@ support, and the firewall savepoint/rollback safety net.
 | **Firewall Rules** | fw-rule:list, add, delete, update | Automation rules only; 60s savepoint safety net |
 | **Firewall Aliases** | fw-alias:list, create, add-host, remove-host, delete | Live `alias_util` updates |
 | **DHCP** | dhcp:list, add, update, delete | Kea backend required |
-| **Certificates** | cert:list, import, delete, check | Raw PEM import; `check` exits 1 if expiring |
-| **HAProxy** | haproxy:list, add, delete, route-add, route-delete, use-dns | Requires os-haproxy plugin |
+| **Certificates** | cert:list, import, delete, check | Raw PEM import; `check` exits 1 if expiring; cron scheduling via `make cert-check-schedule` |
+| **HAProxy** | haproxy:list, add, delete, route-add, route-delete, use-dns, use-ip, disable-resolver, inspect, apply, restart | Requires os-haproxy plugin |
 | **WireGuard** | wg:status, wg:provision, wg:teardown | Zero-touch ProtonVPN from `.conf` file |
 | **NordVPN** | nordvpn:rotate-wg, creds, servers, teardown-wg | WireGuard client rotation |
 | **Config** | config:history, config:history-prune | Web-UI fallback on 26.x; see note below |
@@ -236,6 +236,14 @@ opnsense cert:delete --name "*.bub.lan wildcard"
 
 # Monitoring check (exits 1 if any cert expires within 30 days)
 opnsense cert:check --expiring 30
+
+# Schedule a daily cron job to run cert-check (default: 08:00)
+make cert-check-schedule
+make cert-check-schedule EXPIRING=60 CERT_CHECK_SCHEDULE="0 6 * * *"
+
+# Show or remove the cron job
+make cert-check-cron-status
+make cert-check-unschedule
 ```
 
 ### HAProxy
@@ -277,8 +285,26 @@ opnsense haproxy:delete --name plex
 # Dry-run: show which server addresses would be converted to .bub.lan hostnames
 make haproxy-use-dns
 
-# Apply: commit the conversion
+# Apply: commit the conversion (scope to one backend with NAME=)
 make haproxy-use-dns APPLY=true
+make haproxy-use-dns NAME=plex APPLY=true
+
+# Dry-run: show which hostname addresses would be converted to static IPs
+make haproxy-use-ip
+make haproxy-use-ip NAME=plex APPLY=true
+
+# Inspect raw backend + linked server JSON
+make haproxy-inspect NAME=plex
+
+# Apply pending HAProxy config changes
+make haproxy-apply
+
+# Restart HAProxy service
+make haproxy-restart
+
+# Clear resolver config on backend servers (dry-run by default)
+make haproxy-disable-resolver
+make haproxy-disable-resolver NAME=plex APPLY=true
 ```
 
 ### WireGuard — ProtonVPN Zero-Touch Provisioning
@@ -412,6 +438,8 @@ grafana,3000,Grafana dashboards
 | DHCP | ISC DHCP (index-based) | Kea DHCP (UUID-based, must be enabled) |
 | Cert import | base64-encoded PEM | Raw PEM (controller encodes internally) |
 | Firewall rules | Numeric IDs | UUID + 60s savepoint/rollback |
+| HAProxy backends | Servers embedded in backend object | Servers are standalone; linked by UUID |
+| HAProxy restart | Prints GUI instructions (no API endpoint) | Real restart via `/api/haproxy/service/restart` |
 | WireGuard model | Tunnels + Peers | Server instances + Clients |
 | WireGuard fields | `privatekey`, `listenport` | `privkey`, `port` |
 | Interface assignment | REST API | Manual (web UI) on ≤26.x |

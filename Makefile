@@ -4,7 +4,7 @@ export BUILDKIT_PROGRESS = quiet
 -include config.mk
 
 .PHONY: build run dns-list dns-add dns-update dns-delete dns-alias-add dns-alias-delete add-dual-alias \
-	haproxy-list haproxy-add haproxy-delete haproxy-use-dns haproxy-inspect haproxy-apply haproxy-restart \
+	haproxy-list haproxy-add haproxy-delete haproxy-use-dns haproxy-use-ip haproxy-disable-resolver haproxy-inspect haproxy-apply haproxy-restart \
 	add-service delete-service list-hosts help cli-help test-api check-version \
 	wg-status wg-provision wg-apply wg-dry-run wg-teardown \
 	fw-rule-list fw-rule-add fw-rule-delete fw-rule-update \
@@ -54,8 +54,12 @@ help: ## Show this help message
 	@printf "\n"
 	@printf "  \033[32mmake list-hosts\033[0m    \033[90m# show available HOST_BUB / HOST_LAMOLABS values\033[0m\n"
 	@printf "  \033[32mmake dns-list\033[0m      \033[90m# list all DNS entries\033[0m\n"
-	@printf "  \033[32mmake haproxy-list\033[0m      \033[90m# list all HAProxy backends\033[0m\n"
-	@printf "  \033[32mmake haproxy-use-dns\033[0m   \033[90m# convert IP backend addresses to .bub.lan hostnames (APPLY=true to commit)\033[0m\n"
+	@printf "  \033[32mmake haproxy-list\033[0m          \033[90m# list all HAProxy backends\033[0m\n"
+	@printf "  \033[32mmake haproxy-use-dns\033[0m       \033[90m# convert IP backend addresses to .bub.lan hostnames (APPLY=true to commit)\033[0m\n"
+	@printf "  \033[32mmake haproxy-use-ip\033[0m        \033[90m# convert hostname backend addresses to static IPs (APPLY=true to commit)\033[0m\n"
+	@printf "  \033[32mmake haproxy-inspect\033[0m       \033[90m# dump raw backend+server JSON (NAME=required)\033[0m\n"
+	@printf "  \033[32mmake haproxy-apply\033[0m         \033[90m# apply pending HAProxy config\033[0m\n"
+	@printf "  \033[32mmake haproxy-restart\033[0m       \033[90m# restart HAProxy service\033[0m\n"
 	@printf "\n"
 	@printf "  \033[32mmake wg-provision\033[0m CONF=~/Downloads/protonvpn.conf KILL_SWITCH='192.168.7.6/32' KS_ALIAS=NordVPN_KS_Hosts\n"
 	@printf "  \033[32mmake wg-provision\033[0m CONF=~/Downloads/protonvpn.conf KILL_SWITCH='192.168.7.6/32 192.168.7.7/32'\n"
@@ -211,8 +215,14 @@ haproxy-delete: ## Delete HAProxy backend (NAME=)
 	fi
 	@docker-compose run --rm opnsense-cli haproxy:delete --name $(NAME) 2>/dev/null
 
-haproxy-use-dns: ## Dry-run by default: show which backend IPs would convert to .bub.lan hostnames (APPLY=true to apply)
-	@docker-compose run --rm opnsense-cli haproxy:use-dns $(if $(filter true,$(APPLY)),--apply) 2>/dev/null
+haproxy-use-dns: ## Dry-run by default: show which backend IPs would convert to .bub.lan hostnames (APPLY=true to apply, NAME= to scope)
+	@node cli.js haproxy:use-dns $(if $(filter true,$(APPLY)),--apply) $(if $(NAME),--name $(NAME)) 2>/dev/null
+
+haproxy-use-ip: ## Dry-run by default: show which backend hostnames would convert to static IPs (APPLY=true to apply, NAME= to scope)
+	@node cli.js haproxy:use-ip $(if $(filter true,$(APPLY)),--apply) $(if $(NAME),--name $(NAME)) 2>/dev/null
+
+haproxy-disable-resolver: ## Clear resolver config on backend servers (APPLY=true to apply, NAME= to scope)
+	@node cli.js haproxy:disable-resolver $(if $(filter true,$(APPLY)),--apply) $(if $(NAME),--name $(NAME)) 2>/dev/null
 
 haproxy-inspect: ## Dump raw JSON for a named backend and its linked servers (NAME=)
 	@if [ -z "$(NAME)" ]; then \
