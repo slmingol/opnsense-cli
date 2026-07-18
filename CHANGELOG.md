@@ -1,3 +1,10 @@
+## [1.7.0](https://github.com/slmingol/opnsense-cli/compare/v1.6.0...v1.7.0) (2026-07-18)
+
+
+### Features
+
+* add haproxy:use-ip, haproxy:disable-resolver; --name filter on use-dns/use-ip; README updates ([e292727](https://github.com/slmingol/opnsense-cli/commit/e2927272322a6733b2fd40ae99880fd3e00509ae))
+
 ## [1.6.0](https://github.com/slmingol/opnsense-cli/compare/v1.5.1...v1.6.0) (2026-07-18)
 
 
