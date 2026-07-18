@@ -1,3 +1,10 @@
+## [1.6.0](https://github.com/slmingol/opnsense-cli/compare/v1.5.1...v1.6.0) (2026-07-18)
+
+
+### Features
+
+* add haproxy:inspect, haproxy:apply, haproxy:restart; cert-check cron; Makefile formatting ([d54cf34](https://github.com/slmingol/opnsense-cli/commit/d54cf3411b384bcbb682902a63eeb9f16a4c3523))
+
 ## [1.5.1](https://github.com/slmingol/opnsense-cli/compare/v1.5.0...v1.5.1) (2026-07-17)
 
 

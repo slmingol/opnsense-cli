@@ -1,6 +1,6 @@
 {
   "name": "opnsense-cli",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "CLI tool to manage OPNsense via REST API",
   "main": "cli.js",
   "bin": {
