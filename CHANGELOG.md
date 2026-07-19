@@ -1,3 +1,10 @@
+## [1.9.2](https://github.com/slmingol/opnsense-cli/compare/v1.9.1...v1.9.2) (2026-07-19)
+
+
+### Bug Fixes
+
+* add continue-on-error to delete-workflow-runs steps ([5492eac](https://github.com/slmingol/opnsense-cli/commit/5492eac23b5c41d97eb4ea842f7f0435ab0674d7))
+
 ## [1.9.1](https://github.com/slmingol/opnsense-cli/compare/v1.9.0...v1.9.1) (2026-07-18)
 
 
