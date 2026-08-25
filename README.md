@@ -466,6 +466,10 @@ opnsense bulk:import services.json --dry-run
 
 # Apply
 opnsense bulk:import services.json
+
+# DNS entries follow the configured DNS backend (see DNS section);
+# select it explicitly per command if needed
+opnsense bulk:export --backend dnsmasq --output snapshot.json
 ```
 
 **JSON format:**
