@@ -657,8 +657,9 @@ program
   .command('bulk:import <file>')
   .description('Bulk import DNS entries and/or HAProxy backends from a JSON or CSV file')
   .option('--dry-run', 'Preview without applying changes')
+  .option('-b, --backend <backend>', 'DNS backend: unbound or dnsmasq (env: DNS_BACKEND)')
   .action(async (file, options) => {
-    try { await bulkImport({ file, dryRun: !!options.dryRun }); }
+    try { await bulkImport({ file, dryRun: !!options.dryRun, backend: options.backend }); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
@@ -666,8 +667,9 @@ program
   .command('bulk:export')
   .description('Export current DNS entries and HAProxy backends to JSON')
   .option('-o, --output <file>', 'Write output to file instead of stdout')
+  .option('-b, --backend <backend>', 'DNS backend: unbound or dnsmasq (env: DNS_BACKEND)')
   .action(async (options) => {
-    try { await bulkExport({ output: options.output }); }
+    try { await bulkExport({ output: options.output, backend: options.backend }); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
