@@ -10,7 +10,7 @@ const { listAliases, createOrUpdateAlias, addAliasHost, removeAliasHost, deleteA
 const { rotateNordVPNWG, printNordVPNCreds, listNordVPNServers, teardownNordVPNWG } = require('./lib/nordvpn');
 const { bulkImport, bulkExport } = require('./lib/bulk');
 const { listCerts, importCert, deleteCert, checkCerts } = require('./lib/cert');
-const { listStaticMappings, addStaticMapping, updateStaticMapping, deleteStaticMapping } = require('./lib/dhcp');
+const { listStaticMappings, addStaticMapping, updateStaticMapping, deleteStaticMapping, listLeases } = require('./lib/dhcp');
 const { listConfigHistory, pruneConfigHistory } = require('./lib/config');
 const fs = require('fs');
 const packageJson = require('./package.json');
@@ -533,6 +533,16 @@ program
   .option('-f, --filter <text>',     'Filter by MAC, IP, hostname, or description')
   .action(async (options) => {
     try { await listStaticMappings({ iface: options.interface, filter: options.filter }); }
+    catch (e) { console.error('Error:', e.message); process.exit(1); }
+  });
+
+program
+  .command('dhcp:leases')
+  .description('List active DHCP leases (read-only; Kea or legacy ISC backend)')
+  .option('-f, --filter <text>', 'Filter by MAC, IP, hostname, or interface')
+  .option('-b, --backend <backend>', 'DHCP backend: kea or isc (env: DHCP_BACKEND)')
+  .action(async (options) => {
+    try { await listLeases({ filter: options.filter, backend: options.backend }); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
