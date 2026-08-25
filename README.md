@@ -32,7 +32,7 @@ support, and the firewall savepoint/rollback safety net.
 | **DNS** | list, add, update, delete, alias:add, alias:delete | Unbound (default) or Dnsmasq host overrides — see `--backend` / `DNS_BACKEND` |
 | **Firewall Rules** | fw-rule:list, add, delete, update | Automation rules only; 60s savepoint safety net |
 | **Firewall Aliases** | fw-alias:list, create, add-host, remove-host, delete | Live `alias_util` updates |
-| **DHCP** | dhcp:list, add, update, delete | Kea backend required |
+| **DHCP** | dhcp:list, add, update, delete, leases | Reservations require Kea; `dhcp:leases` also supports legacy ISC (`--backend isc`) |
 | **Certificates** | cert:list, import, delete, check | Raw PEM import; `check` exits 1 if expiring; cron scheduling via `make cert-check-schedule` |
 | **HAProxy** | haproxy:list, add, delete, route-add, route-delete, use-dns, use-ip, disable-resolver, inspect, apply, restart | Requires os-haproxy plugin |
 | **WireGuard** | wg:status, wg:provision, wg:teardown | Zero-touch ProtonVPN from `.conf` file |
@@ -225,6 +225,24 @@ opnsense dhcp:update --interface lan --mac aa:bb:cc:dd:ee:ff --hostname newhostn
 
 # Remove
 opnsense dhcp:delete --interface lan --mac aa:bb:cc:dd:ee:ff
+```
+
+#### Leases (read-only — works with Kea or legacy ISC)
+
+Leases can be listed on either DHCP backend. Select with `--backend kea`
+(default) or `--backend isc`, or set `DHCP_BACKEND` in `.env`. Legacy ISC has
+no writable settings API, so leases are the only `dhcp:*` operation available
+on ISC.
+
+```bash
+# Active leases, grouped by interface
+opnsense dhcp:leases
+
+# On a firewall still running legacy ISC DHCP
+opnsense dhcp:leases --backend isc
+
+# Filter by MAC, IP, hostname, or interface
+opnsense dhcp:leases --backend isc --filter wifi
 ```
 
 ### Certificates
