@@ -30,8 +30,9 @@ program
   .command('list')
   .description('List DNS host override entries')
   .option('-f, --filter <hostname>', 'Filter by hostname or domain')
+  .option('-b, --backend <backend>', 'DNS backend: unbound or dnsmasq (env: DNS_BACKEND)')
   .action(async (options) => {
-    try { await listEntries(options.filter); }
+    try { await listEntries(options.filter, options.backend); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
@@ -42,8 +43,9 @@ program
   .requiredOption('-d, --domain <domain>', 'Domain')
   .requiredOption('-i, --ip <ip>', 'IP address')
   .option('-D, --description <description>', 'Description')
+  .option('-b, --backend <backend>', 'DNS backend: unbound or dnsmasq (env: DNS_BACKEND)')
   .action(async (options) => {
-    try { await addEntry({ host: options.host, domain: options.domain, ip: options.ip, description: options.description || '' }); }
+    try { await addEntry({ host: options.host, domain: options.domain, ip: options.ip, description: options.description || '', backend: options.backend }); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
@@ -54,8 +56,9 @@ program
   .requiredOption('-d, --domain <domain>', 'Domain to update')
   .option('-i, --ip <ip>', 'New IP address')
   .option('-D, --description <description>', 'New description')
+  .option('-b, --backend <backend>', 'DNS backend: unbound or dnsmasq (env: DNS_BACKEND)')
   .action(async (options) => {
-    try { await updateEntry({ host: options.host, domain: options.domain, ip: options.ip, description: options.description }); }
+    try { await updateEntry({ host: options.host, domain: options.domain, ip: options.ip, description: options.description, backend: options.backend }); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
@@ -64,8 +67,9 @@ program
   .description('Delete a DNS host override entry')
   .requiredOption('-h, --host <hostname>', 'Hostname')
   .requiredOption('-d, --domain <domain>', 'Domain')
+  .option('-b, --backend <backend>', 'DNS backend: unbound or dnsmasq (env: DNS_BACKEND)')
   .action(async (options) => {
-    try { await deleteEntry(options.host, options.domain); }
+    try { await deleteEntry(options.host, options.domain, options.backend); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
@@ -77,8 +81,9 @@ program
   .requiredOption('-a, --alias-host <alias>', 'Alias hostname')
   .requiredOption('-A, --alias-domain <alias-domain>', 'Alias domain')
   .option('-D, --description <description>', 'Alias description')
+  .option('-b, --backend <backend>', 'DNS backend: unbound or dnsmasq (env: DNS_BACKEND)')
   .action(async (options) => {
-    try { await addAlias({ host: options.host, domain: options.domain, aliasHost: options.aliasHost, aliasDomain: options.aliasDomain, description: options.description || '' }); }
+    try { await addAlias({ host: options.host, domain: options.domain, aliasHost: options.aliasHost, aliasDomain: options.aliasDomain, description: options.description || '', backend: options.backend }); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
@@ -89,8 +94,9 @@ program
   .requiredOption('-d, --domain <domain>', 'Parent domain')
   .requiredOption('-a, --alias-host <alias>', 'Alias hostname to delete')
   .requiredOption('-A, --alias-domain <alias-domain>', 'Alias domain to delete')
+  .option('-b, --backend <backend>', 'DNS backend: unbound or dnsmasq (env: DNS_BACKEND)')
   .action(async (options) => {
-    try { await deleteDnsAlias({ host: options.host, domain: options.domain, aliasHost: options.aliasHost, aliasDomain: options.aliasDomain }); }
+    try { await deleteDnsAlias({ host: options.host, domain: options.domain, aliasHost: options.aliasHost, aliasDomain: options.aliasDomain, backend: options.backend }); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
