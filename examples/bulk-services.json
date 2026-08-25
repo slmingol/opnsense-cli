@@ -16,7 +16,9 @@
       "alias": "prometheus",
       "port": "9090",
       "description": "Prometheus — metrics collection",
-      "ssl": false
+      "ssl": false,
+      "host": "docker-host-02-svcs",
+      "domain": "example.lan"
     }
   ]
 }
