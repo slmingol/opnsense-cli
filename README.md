@@ -472,6 +472,11 @@ opnsense bulk:import services.json
 opnsense bulk:export --backend dnsmasq --output snapshot.json
 ```
 
+Service records point their DNS alias at a backend host. Set site-wide
+defaults with `SERVICES_HOST` / `SERVICES_DOMAIN` in `.env`, or per record
+with `host` / `domain` fields (`host_bub` remains supported as a legacy
+name for `host`). See [examples/bulk-services.json](examples/bulk-services.json).
+
 **JSON format:**
 
 ```json
