@@ -1,3 +1,17 @@
+## [1.11.0](https://github.com/slmingol/opnsense-cli/compare/v1.10.0...v1.11.0) (2026-08-29)
+
+
+### Features
+
+* **bulk:** make services import host/domain configurable ([6ccd041](https://github.com/slmingol/opnsense-cli/commit/6ccd041ad555d23cf5da355ffb7ee40b863a9995))
+* **bulk:** route DNS entries through the configured DNS backend ([c51a9cf](https://github.com/slmingol/opnsense-cli/commit/c51a9cf02cc6b680a162a7110550fbfac616c88c))
+* **dhcp:** add read-only dhcp:leases command with Kea and ISC support ([07cd163](https://github.com/slmingol/opnsense-cli/commit/07cd16300816ac2526ce4d7044914a1206babfc2))
+
+
+### Bug Fixes
+
+* **bulk:** skip HAProxy export when os-haproxy plugin is not installed ([72eea2b](https://github.com/slmingol/opnsense-cli/commit/72eea2be00ded4ec1f02309b6e1156ba7f8fed53))
+
 ## [1.10.0](https://github.com/slmingol/opnsense-cli/compare/v1.9.2...v1.10.0) (2026-08-29)
 
 
