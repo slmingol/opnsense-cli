@@ -4,7 +4,7 @@ export BUILDKIT_PROGRESS = quiet
 -include config.mk
 
 .PHONY: build run dns-list dns-add dns-update dns-delete dns-alias-add dns-alias-delete add-dual-alias \
-	haproxy-list haproxy-add haproxy-delete haproxy-use-dns haproxy-use-ip haproxy-disable-resolver haproxy-inspect haproxy-apply haproxy-restart haproxy-route-add haproxy-route-delete \
+	haproxy-list haproxy-add haproxy-delete haproxy-use-dns haproxy-use-ip haproxy-disable-resolver haproxy-inspect haproxy-apply haproxy-restart haproxy-audit haproxy-route-add haproxy-route-delete \
 	add-service delete-service list-hosts help cli-help test-api check-version \
 	wg-status wg-provision wg-apply wg-dry-run wg-teardown \
 	fw-rule-list fw-rule-add fw-rule-delete fw-rule-update \
@@ -238,6 +238,9 @@ haproxy-apply: ## Apply pending HAProxy config changes (reconfigure)
 
 haproxy-restart: ## Restart the HAProxy service
 	@node cli.js haproxy:restart 2>/dev/null
+
+haproxy-audit: ## Audit backends: classify servers as static IP, service hostname, or shared/catch-all
+	@node cli.js haproxy:audit 2>/dev/null
 
 FRONTEND   ?= $(HAPROXY_FRONTEND)
 ROUTE_HOST ?=

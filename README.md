@@ -34,7 +34,7 @@ support, and the firewall savepoint/rollback safety net.
 | **Firewall Aliases** | fw-alias:list, create, add-host, remove-host, delete | Live `alias_util` updates |
 | **DHCP** | dhcp:list, add, update, delete, leases | Reservations require Kea; `dhcp:leases` also supports legacy ISC (`--backend isc`) |
 | **Certificates** | cert:list, import, delete, check | Raw PEM import; `check` exits 1 if expiring; cron scheduling via `make cert-check-schedule` |
-| **HAProxy** | haproxy:list, add, delete, route-add, route-delete, use-dns, use-ip, disable-resolver, inspect, apply, restart | Requires os-haproxy plugin |
+| **HAProxy** | haproxy:list, add, delete, route-add, route-delete, use-dns, use-ip, disable-resolver, inspect, apply, restart, audit | Requires os-haproxy plugin |
 | **WireGuard** | wg:status, wg:provision, wg:teardown | Zero-touch ProtonVPN from `.conf` file |
 | **NordVPN** | nordvpn:rotate-wg, creds, servers, teardown-wg | WireGuard client rotation |
 | **NAT** | nat:list, add, delete | Port forwards; requires OPNsense 24.1+ |
@@ -334,6 +334,9 @@ make haproxy-restart
 # Clear resolver config on backend servers (dry-run by default)
 make haproxy-disable-resolver
 make haproxy-disable-resolver NAME=plex APPLY=true
+
+# Audit backends: classify as static IP, service hostname, or shared/catch-all
+make haproxy-audit
 ```
 
 ### WireGuard — ProtonVPN Zero-Touch Provisioning
