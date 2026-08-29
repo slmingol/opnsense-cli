@@ -1,3 +1,10 @@
+## [1.12.0](https://github.com/slmingol/opnsense-cli/compare/v1.11.0...v1.12.0) (2026-08-29)
+
+
+### Features
+
+* HAProxy frontend management (list/add/delete/cert-swap) ([f74a0c6](https://github.com/slmingol/opnsense-cli/commit/f74a0c6e3425e0b6eb9a032d97708d84bfc3b758))
+
 ## [1.11.0](https://github.com/slmingol/opnsense-cli/compare/v1.10.0...v1.11.0) (2026-08-29)
 
 
