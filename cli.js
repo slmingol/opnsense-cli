@@ -2,7 +2,7 @@
 
 const { Command } = require('commander');
 const { listEntries, addEntry, updateEntry, deleteEntry, addAlias, deleteAlias: deleteDnsAlias } = require('./lib/dns');
-const { listBackends, addBackend, deleteBackend, addFrontendRoute, deleteFrontendRoute, fixBackendDnsAddresses, fixBackendIpAddresses, disableBackendResolver, inspectBackend, applyHaproxy, restartHaproxy, listFrontends, addFrontend, deleteFrontend, assignFrontendCert } = require('./lib/haproxy');
+const { listBackends, addBackend, deleteBackend, addFrontendRoute, deleteFrontendRoute, fixBackendDnsAddresses, fixBackendIpAddresses, disableBackendResolver, inspectBackend, applyHaproxy, restartHaproxy, auditBackends, listFrontends, addFrontend, deleteFrontend, assignFrontendCert } = require('./lib/haproxy');
 const { listTunnels, applyProtonVPN, teardownProtonVPN } = require('./lib/wireguard');
 const { listAliases, createOrUpdateAlias, addAliasHost, removeAliasHost, deleteAlias,
         listRules, addRule, deleteRule, updateRule,
@@ -251,6 +251,14 @@ program
   .description('Restart the HAProxy service')
   .action(async () => {
     try { await restartHaproxy(); }
+    catch (e) { console.error('Error:', e.message); process.exit(1); }
+  });
+
+program
+  .command('haproxy:audit')
+  .description('Audit backend servers: classify as static IP, service hostname, or shared/catch-all')
+  .action(async () => {
+    try { await auditBackends(); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 
