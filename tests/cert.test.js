@@ -5,6 +5,7 @@ jest.mock('../lib/opnsense', () => ({ getClient: jest.fn() }));
 const { fmtExpiry, tsToMs, fmtDate, daysLeft } = require('../lib/cert');
 
 // Strip ANSI escape codes for clean assertions
+// eslint-disable-next-line no-control-regex
 const strip = s => s.replace(/\x1b\[[0-9;]*m/g, '');
 
 // ---------------------------------------------------------------------------
