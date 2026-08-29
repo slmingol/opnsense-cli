@@ -1,3 +1,10 @@
+## [1.13.0](https://github.com/slmingol/opnsense-cli/compare/v1.12.0...v1.13.0) (2026-08-29)
+
+
+### Features
+
+* haproxy:audit command to classify backend servers ([cd16e80](https://github.com/slmingol/opnsense-cli/commit/cd16e80d86e441dba1133da8ad7bbf0b5519de40))
+
 ## [1.12.0](https://github.com/slmingol/opnsense-cli/compare/v1.11.0...v1.12.0) (2026-08-29)
 
 
