@@ -29,7 +29,7 @@ support, and the firewall savepoint/rollback safety net.
 
 | Module | Commands | Notes |
 |---|---|---|
-| **DNS** | list, add, update, delete, alias:add, alias:delete | Unbound host overrides |
+| **DNS** | list, add, update, delete, alias:add, alias:delete | Unbound (default) or Dnsmasq host overrides — see `--backend` / `DNS_BACKEND` |
 | **Firewall Rules** | fw-rule:list, add, delete, update | Automation rules only; 60s savepoint safety net |
 | **Firewall Aliases** | fw-alias:list, create, add-host, remove-host, delete | Live `alias_util` updates |
 | **DHCP** | dhcp:list, add, update, delete | Kea backend required |
@@ -121,9 +121,19 @@ opnsense --help
 opnsense <command> --help
 ```
 
-### DNS — Unbound Host Overrides
+### DNS — Host Overrides (Unbound or Dnsmasq)
+
+DNS commands target Unbound by default. If your firewall serves DNS from
+Dnsmasq instead, select the backend per command with `--backend dnsmasq`, or
+set it once with `DNS_BACKEND=dnsmasq` in `.env` (the flag overrides the env
+var). With the Dnsmasq backend, aliases are stored as CNAMEs on the host
+entry, and other Dnsmasq host settings (DHCP reservation fields, tags) are
+preserved on update.
 
 ```bash
+# Same commands against Dnsmasq instead of Unbound
+opnsense list --backend dnsmasq
+
 # List all entries (with inline aliases)
 opnsense list
 
