@@ -646,7 +646,7 @@ program
   .option('-f, --filter <text>',   'Filter by certificate name')
   .option('-e, --expiring <days>', 'Show only certificates expiring within N days')
   .action(async (options) => {
-    try { await listCerts({ filter: options.filter, expiringDays: options.expiring != null ? parseInt(options.expiring, 10) : undefined }); }
+    try { await listCerts({ filter: options.filter, expiringDays: options.expiring !== null && options.expiring !== undefined ? parseInt(options.expiring, 10) : undefined }); }
     catch (e) { console.error('Error:', e.message); process.exit(1); }
   });
 

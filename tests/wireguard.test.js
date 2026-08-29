@@ -26,17 +26,6 @@ Endpoint     = vpn.example.com:51820
 AllowedIPs   = 0.0.0.0/0, ::/0
 `;
 
-const CONF_IPV6_ENDPOINT = `
-[Interface]
-PrivateKey = abc123privatekey==
-Address    = 10.68.0.2/32
-
-[Peer]
-PublicKey  = xyz789pubkey==
-Endpoint   = [2001:db8::1]:51820
-AllowedIPs = 0.0.0.0/0
-`;
-
 const CONF_NO_DNS = `
 [Interface]
 PrivateKey = abc123privatekey==

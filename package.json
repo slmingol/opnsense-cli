@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node cli.js",
+    "lint": "eslint lib/ cli.js tests/",
     "test": "jest",
     "docker:build": "docker compose build",
     "docker:run": "docker compose run --rm opnsense-cli",
@@ -40,6 +41,7 @@
     "dotenv": "^16.3.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^11.1.0",
     "@semantic-release/git": "^10.0.1",
@@ -47,6 +49,7 @@
     "@semantic-release/npm": "^11.0.2",
     "@semantic-release/release-notes-generator": "^12.1.0",
     "conventional-changelog-conventionalcommits": "^7.0.2",
+    "eslint": "^10.9.1",
     "jest": "^30.5.0",
     "semantic-release": "^23.0.0"
   }
