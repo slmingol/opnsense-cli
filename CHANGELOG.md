@@ -1,3 +1,11 @@
+## [1.10.0](https://github.com/slmingol/opnsense-cli/compare/v1.9.2...v1.10.0) (2026-08-29)
+
+
+### Features
+
+* **dns:** add Dnsmasq backend for host override commands ([3aa21ad](https://github.com/slmingol/opnsense-cli/commit/3aa21adaa7b2ca280a8b3599ce908dee872c597a))
+* **dns:** add Dnsmasq backend for host override commands ([7e787f7](https://github.com/slmingol/opnsense-cli/commit/7e787f7068ec927338bc0fd80d376c6cd941bd9c))
+
 ## [1.9.2](https://github.com/slmingol/opnsense-cli/compare/v1.9.1...v1.9.2) (2026-07-19)
 
 
