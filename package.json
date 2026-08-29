@@ -8,9 +8,14 @@
   },
   "scripts": {
     "start": "node cli.js",
+    "test": "jest",
     "docker:build": "docker compose build",
     "docker:run": "docker compose run --rm opnsense-cli",
     "semantic-release": "semantic-release"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/tests/**/*.test.js"]
   },
   "repository": {
     "type": "git",
@@ -28,8 +33,8 @@
   "author": "slmingol",
   "license": "MIT",
   "dependencies": {
-    "commander": "^11.1.0",
     "axios": "^1.16.0",
+    "commander": "^11.1.0",
     "dotenv": "^16.3.1"
   },
   "devDependencies": {
@@ -40,6 +45,7 @@
     "@semantic-release/npm": "^11.0.2",
     "@semantic-release/release-notes-generator": "^12.1.0",
     "conventional-changelog-conventionalcommits": "^7.0.2",
+    "jest": "^30.5.0",
     "semantic-release": "^23.0.0"
   }
 }
