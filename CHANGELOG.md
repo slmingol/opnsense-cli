@@ -1,3 +1,15 @@
+## [1.13.1](https://github.com/slmingol/opnsense-cli/compare/v1.13.0...v1.13.1) (2026-09-20)
+
+### Bug Fixes
+
+* **deps:** force conventional-changelog-writer@9 via npm overrides ([3406d25](https://github.com/slmingol/opnsense-cli/commit/3406d25efaf3b6f2f854384bb2995a5126be2df1))
+* **deps:** update dependency commander to v15 ([eb79836](https://github.com/slmingol/opnsense-cli/commit/eb7983699d7bfde8692b8f110a9f643b25341281))
+* **deps:** update dependency dotenv to v18 ([ef8e937](https://github.com/slmingol/opnsense-cli/commit/ef8e9370aad737b9b04df58f4d130d5695db442b))
+
+### Tests
+
+* add unit tests for cert helpers, wireguard parser, and dnsmasq utilities ([490a720](https://github.com/slmingol/opnsense-cli/commit/490a72007bd1f2a792bbc0a99d9b1d14047232e0))
+
 ## [1.13.0](https://github.com/slmingol/opnsense-cli/compare/v1.12.0...v1.13.0) (2026-08-29)
 
 
