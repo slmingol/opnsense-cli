@@ -1,3 +1,9 @@
+## [1.13.2](https://github.com/slmingol/opnsense-cli/compare/v1.13.1...v1.13.2) (2026-10-30)
+
+### Bug Fixes
+
+* **Router:** address code review findings ([4b20809](https://github.com/slmingol/opnsense-cli/commit/4b208091449d949fc0c49cb04dd1abe3141246c5))
+
 ## [1.13.1](https://github.com/slmingol/opnsense-cli/compare/v1.13.0...v1.13.1) (2026-09-20)
 
 ### Bug Fixes
