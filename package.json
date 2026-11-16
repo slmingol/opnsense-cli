@@ -55,6 +55,6 @@
     "conventional-changelog-writer": "^9.2.1",
     "eslint": "^10.9.1",
     "jest": "^30.5.0",
-    "semantic-release": "^25.0.0"
+    "semantic-release": "^26.0.0"
   }
 }
